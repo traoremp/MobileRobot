@@ -87,12 +87,14 @@ void controller_loop(CtrlStruct *cvs)
 	// tower control
 	outputs->tower_command = 15.0;
 	
-	outputs->wheel_commands[R_ID] = 30.0;
-	outputs->wheel_commands[L_ID] = 30.0;
-	if(t > -10.0){
-		outputs->wheel_commands[R_ID] = 70.0;
-		outputs->wheel_commands[L_ID] = -70.0;
-	}
+	// outputs->wheel_commands[R_ID] = 30.0;
+	// outputs->wheel_commands[L_ID] = 30.0;
+	// if(t > -10.0){
+	// 	outputs->wheel_commands[R_ID] = 70.0;
+	// 	outputs->wheel_commands[L_ID] = -70.0;
+	// }
+
+	speed_regulation(cvs, 10, 10);
 	
 	return;
 	switch (cvs->main_state)

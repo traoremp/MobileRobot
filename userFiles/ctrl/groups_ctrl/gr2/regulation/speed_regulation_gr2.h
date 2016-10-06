@@ -17,7 +17,7 @@ typedef struct SpeedRegulation
 {
 	double int_error_r; ///< integral term of the error for the right wheel
 	double int_error_l; ///< integral term of the error for the left wheel
-
+	
 	double last_t; ///< last time the speed regulation was updated
 
 } SpeedRegulation;
