@@ -1,0 +1,26 @@
+Workflow normal pour ajouter des fonctionnalités :
+
+1) Créer une nouvelle branche avec un nom significatif pour chaque fonctionnalité. git checkout -b [nom de la branche]
+2) Ajouter, modifier, supprimer, etc. les fichiers.
+3) Ajouter tous les fichiers modifiés à la liste. git add -u
+4) Ajouter les nouveaux fichiers à la liste si nécessaire. git add [nom du fichier]
+5) Faire un commit local des changements avec un message significatif. git commit -m [message du commit]
+6) Envoyer le commit vers le serveur. git push origin [nom de la branche]
+GOTO 2 jusqu'à ce que la fonctionnalité soit complétée.
+
+APRÈS VALIDATION PAR L'ÉQUIPE ET EXÉCUTION DES TESTS :
+1) Retourner à la branche dev. git checkout dev
+2) Fusionner la branche créée avec la branche dev. git merge [nom de la branche créée]
+3) Supprimer la branche créée. git branch -d [nom de la branche créée]
+4) Envoyer le commit vers le serveur. git push origin dev
+
+
+Astuces :
+- Pour changer de branche : git checkout [nom de la branche]
+- Pour supprimer une branche : git branch -d [nom de la branche]
+- Pour supprimer les copies locales des branches remotes supprimées : git fetch -p
+- Pour voir toutes les branches : git branch -a
+- Pour obtenir les changements du remote : git pull origin dev
+- Pour obtenir les branches non locales du remote : git pull --all
+- Pour supprimer une branche du remote : git push origin --delete [nom de la branche]
+- Vous avez accidentellement fait des modifications au dev (sans commit) ? : git stash -u; git checkout -b [nouvelle branche]; git stash apply
