@@ -14,6 +14,9 @@
 #include "triangulation_gr2.h"
 #include "strategy_gr2.h"
 
+#include "user_realtime.h" //set_plot
+
+
 NAMESPACE_INIT(ctrlGr2);
 
 /*! \brief initialize controller operations (called once)
@@ -73,7 +76,6 @@ void controller_loop(CtrlStruct *cvs)
 
 	// time
 	t = inputs->t;
-	
 
 	// update the robot odometry
 	update_odometry(cvs);
@@ -86,17 +88,13 @@ void controller_loop(CtrlStruct *cvs)
 
 	// tower control
 	outputs->tower_command = 15.0;
-	
-	// outputs->wheel_commands[R_ID] = 30.0;
-	// outputs->wheel_commands[L_ID] = 30.0;
-	// if(t > -10.0){
-	// 	outputs->wheel_commands[R_ID] = 70.0;
-	// 	outputs->wheel_commands[L_ID] = -70.0;
-	// }
 
-	speed_regulation(cvs, 10, 10);
-	
-	return;
+	//set_plot(inputs->r_wheel_speed, "R_w_in[rad/s]");
+	//set_plot(inputs->l_wheel_speed, "L_w_in[rad/s]");
+	set_plot(cvs->rob_pos->x, "x_odo[m]");
+	set_plot(cvs->rob_pos->y, "y_odo[m]");
+	set_plot(cvs->rob_pos->theta, "theta_odo[rad]");
+
 	switch (cvs->main_state)
 	{
 		// calibration

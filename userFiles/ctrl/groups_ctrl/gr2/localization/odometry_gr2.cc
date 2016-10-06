@@ -15,6 +15,11 @@ void update_odometry(CtrlStruct *cvs)
 	double r_sp, l_sp;
 	double dt;
 
+	const double radius_w = 0.03;
+	const double dist_w = 0.225;
+
+	double ds_r, ds_l, ds, dtheta;
+
 	RobotPosition *rob_pos;
 	CtrlIn *inputs;
 
@@ -36,6 +41,15 @@ void update_odometry(CtrlStruct *cvs)
 
 	// ----- odometry computation start ----- //
 
+	ds_r = r_sp*radius_w*dt;
+	ds_l = l_sp*radius_w*dt;
+
+	ds = (ds_r+ds_l)/2;
+	dtheta = (ds_r-ds_l)/dist_w;
+
+	rob_pos->x += ds*cos(rob_pos->theta + dtheta/2);
+	rob_pos->y += ds*sin(rob_pos->theta + dtheta/2);
+	rob_pos->theta += dtheta;
 
 	// ----- odometry computation end ----- //
 

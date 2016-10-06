@@ -88,8 +88,17 @@ void opponents_tower(CtrlStruct *cvs)
  */
 int single_opp_tower(double last_rise, double last_fall, double rob_x, double rob_y, double rob_theta, double *new_x_opp, double *new_y_opp)
 {
-	*new_x_opp = 0.0;
-	*new_y_opp = 0.0;
+	//*new_x_opp = 0.0;
+	//*new_y_opp = 0.0;
+
+	double dist;
+	const double r_beacon = 0.04;
+	const double beacon_uncentered = 0.083;
+
+	dist = r_beacon/tan((last_fall-last_rise)/2);
+
+	*new_x_opp = rob_x - beacon_uncentered*cos(rob_theta) + dist*sin(rob_theta + (last_fall+last_rise)/2);
+	*new_y_opp = rob_y - beacon_uncentered*sin(rob_theta) - dist*cos(rob_theta + (last_fall+last_rise)/2);
 
 	return 1;
 }

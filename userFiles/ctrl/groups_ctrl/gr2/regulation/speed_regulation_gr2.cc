@@ -9,14 +9,13 @@ NAMESPACE_INIT(ctrlGr2);
  * \parem[in] r_sp_ref right wheel speed reference [rad/s]
  * \parem[in] l_sp_ref left wheel speed reference [rad/s]
  */
- //pu.bai@epfl.ch
 void speed_regulation(CtrlStruct *cvs, double r_sp_ref, double l_sp_ref)
 {
 	double r_sp, l_sp;
 	double dt;
-	double kp = 80;
-	double ki = 15;
-	double output_r_wheel, output_l_wheel;
+
+	double kp, ki, r_err, l_err,int_term_r, int_term_l, u_r, u_l;
+
 	// variables declaration
 	CtrlIn *inputs;
 	CtrlOut *outputs;
@@ -35,22 +34,34 @@ void speed_regulation(CtrlStruct *cvs, double r_sp_ref, double l_sp_ref)
 	dt = inputs->t - sp_reg->last_t; // time interval since last call
 
 	// ----- Wheels regulation computation start ----- //
-	sp_reg->int_error_r = sp_reg->int_error_r + ((r_sp_ref - r_sp) * dt);
-	sp_reg->int_error_l = sp_reg->int_error_l + ((l_sp_ref - l_sp) * dt);
+	kp = 10;
+	ki = 2;
 
-	output_r_wheel = kp*(r_sp_ref - r_sp) + ki * limit_range(sp_reg->int_error_r, -10, 10);
-	output_l_wheel = kp*(l_sp_ref - l_sp) + ki * limit_range(sp_reg->int_error_l, -10, 10);
+	r_err = r_sp_ref - r_sp;
+	l_err = l_sp_ref - l_sp;
+
+	sp_reg->int_error_r += r_err;
+	sp_reg->int_error_l += l_err;
+
+	sp_reg->int_error_r = limit_range(sp_reg->int_error_r, -10, 10);
+	sp_reg->int_error_l = limit_range(sp_reg->int_error_l, -10, 10);
+
+
+	int_term_r = ki*sp_reg->int_error_r;
+	int_term_l = ki*sp_reg->int_error_l;
 	
-	
+
+	u_r = kp*r_err + int_term_r*dt;
+	u_l = kp*l_err + int_term_l*dt;
+
 	// wheel commands
-	outputs->wheel_commands[R_ID] = output_r_wheel;
-	outputs->wheel_commands[L_ID] = output_l_wheel;
+	outputs->wheel_commands[R_ID] = u_r;
+	outputs->wheel_commands[L_ID] = u_l;
 
 	// ----- Wheels regulation computation end ----- //
 
 	// last update time
 	sp_reg->last_t = inputs->t;
-
 }
 
 NAMESPACE_CLOSE();
