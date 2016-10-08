@@ -142,7 +142,9 @@ int check_opp_front(CtrlStruct *cvs)
 	for(i=0; i<nb_opp; i++)
 	{
 		// ----- opponents check computation start ----- //
-
+		if( floor(atan(opp_pos->y[i]/opp_pos->x[i]) * 180/ M_PI) == floor(rob_pos->theta* 180/M_PI) ){
+			//check if in front or behind
+		}
 		// ----- opponents check computation end ----- //
 	}
 
