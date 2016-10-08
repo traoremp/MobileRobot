@@ -129,7 +129,8 @@ void calibration(CtrlStruct *cvs)
 			break;
 
 		case CALIB_FINISH: // wait before the match is starting
-			speed_regulation(cvs, 0.0, 0.0);
+			//speed_regulation(cvs, 0.0, 0.0);
+			cvs->main_state = WAIT_INIT_STATE;
 			break;
 	
 		default:
