@@ -29,6 +29,7 @@ int check_opp_front(CtrlStruct *cvs);
 void opponents_tower(CtrlStruct *cvs);
 int single_opp_tower(double last_rise, double last_fall, double rob_x, double rob_y, double rob_theta, double *new_x_opp, double *new_y_opp);
 
+bool isInFront(double rob_x, double rob_y, double rob_theta, double opp_x, double opp_y );
 NAMESPACE_CLOSE();
 
 #endif

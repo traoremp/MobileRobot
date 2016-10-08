@@ -117,7 +117,8 @@ int check_opp_front(CtrlStruct *cvs)
 {
 	// variables declaration
 	int i, nb_opp;
-
+	double k; //coefficient qui satisfait l'equation
+	
 	OpponentsPosition *opp_pos;
 	RobotPosition *rob_pos;
 
@@ -142,13 +143,21 @@ int check_opp_front(CtrlStruct *cvs)
 	for(i=0; i<nb_opp; i++)
 	{
 		// ----- opponents check computation start ----- //
-		if( floor(atan2(opp_pos->y[i]/opp_pos->x[i]) * 180/ M_PI) == floor(rob_pos->theta* 180/M_PI) ){
-			//check if in front or behind
-		}
+		return int(isInFront(rob_pos->x, rob_pos->y, rob_pos->theta, opp_pos->x[i], opp_pos->y[i]));
 		// ----- opponents check computation end ----- //
 	}
 
 	return 0;
 }
 
+bool isInFront(double rob_x, double rob_y, double rob_theta, double opp_x, double opp_y ){
+	double k; //Valeur qui satisfait l'equation
+	double vector_x, vector_y;
+	//double angle_in_positive_range = (rob_theta < 0 ? rob_theta + 2*M_PI : rob_theta);
+	vector_x = cos(rob_theta);
+	vector_y = sin(rob_theta);
+	
+	k = (opp_x - rob_x) / vector_x;
+	return (rob_y + k * vector_y == opp_y && k > 0);
+}
 NAMESPACE_CLOSE();
