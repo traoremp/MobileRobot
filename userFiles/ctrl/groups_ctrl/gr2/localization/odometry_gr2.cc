@@ -50,6 +50,7 @@ void update_odometry(CtrlStruct *cvs)
 	rob_pos->x += ds*cos(rob_pos->theta + dtheta/2);
 	rob_pos->y += ds*sin(rob_pos->theta + dtheta/2);
 	rob_pos->theta += dtheta;
+	rob_pos->theta = limit_angle(rob_pos->theta);
 
 	// ----- odometry computation end ----- //
 
