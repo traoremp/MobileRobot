@@ -71,4 +71,5 @@ double first_order_filter(double last_val, double new_val, double tau, double de
 	return f * frac * new_val + frac * last_val;
 }
 
+
 NAMESPACE_CLOSE();

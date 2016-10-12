@@ -80,6 +80,9 @@ void triangulation(CtrlStruct *cvs)
 	// variables declaration
 	RobotPosition *pos_tri, *rob_pos;
 	CtrlIn *inputs;
+	double x_beacons[3];
+	double y_beacons[3];
+	double relatives_angles[3];
 
 	int alpha_1_index, alpha_2_index, alpha_3_index;
 	int rise_index_1, rise_index_2, rise_index_3;
@@ -122,8 +125,8 @@ void triangulation(CtrlStruct *cvs)
 	alpha_c = inputs->last_rising_fixed[rise_index_3] + (inputs->last_rising_fixed[rise_index_3] - inputs->last_falling_fixed[fall_index_3]);
 
 	// beacons angles predicted thanks to odometry measurements (to compute)
-	alpha_1_predicted = M_PI /2 + atan((y_beac_1 - rob_pos->y) / (x_beac_1 - rob_pos->x)) + (M_PI/2 - rob_pos->theta);
-	alpha_2_predicted = M_PI + (M_PI /2 - atan((y_beac_2 - rob_pos->y) / (x_beac_2 - rob_pos->x)) + (M_PI/2 - rob_pos->theta));
+	alpha_1_predicted = M_PI + (M_PI /2 - atan((y_beac_2 - rob_pos->y) / (x_beac_2 - rob_pos->x)) + (M_PI/2 - rob_pos->theta));
+	alpha_2_predicted = M_PI /2 + atan((y_beac_1 - rob_pos->y) / (x_beac_1 - rob_pos->x)) + (M_PI/2 - rob_pos->theta);	
 	alpha_3_predicted = rob_pos->x < 0 ? 3*M_PI/2 + ( atan((y_beac_2 - rob_pos->y) / (x_beac_2 - rob_pos->x)) + (M_PI/2 - rob_pos->theta)) :
 										M_PI/2 -  ( atan((y_beac_2 - rob_pos->y) / (x_beac_2 - rob_pos->x)) +(M_PI/2 - rob_pos->theta));
 
@@ -173,18 +176,52 @@ void triangulation(CtrlStruct *cvs)
 			printf("Error: unknown index %d !\n", alpha_3_index);
 			exit(EXIT_FAILURE);
 	}
-	
+	x_beacons[0] = x_beac_1;
+	x_beacons[1] = x_beac_2;
+	x_beacons[2] = x_beac_3;
+
+	y_beacons[0] = y_beac_1;
+	y_beacons[1] = y_beac_2;
+	y_beacons[2] = y_beac_3;
+
+	relatives_angles[0] = alpha_1;
+	relatives_angles[1] = alpha_2;
+	relatives_angles[2] = alpha_3;
 
 	// ----- triangulation computation start ----- //
-	
+
+	Eigen::Matrix<float, 2, 2> A;
+	Eigen::Matrix<float, 2, 1> b;
+	A << compute(Operation::X, 0, 1, x_beacons, y_beacons, relatives_angles) - compute(Operation::X, 1, 2, x_beacons, y_beacons, relatives_angles),
+		compute(Operation::Y, 0, 1, x_beacons, y_beacons, relatives_angles) - compute(Operation::Y, 1, 2, x_beacons, y_beacons, relatives_angles),
+		compute(Operation::X, 1, 2, x_beacons, y_beacons, relatives_angles) - compute(Operation::X, 2, 1, x_beacons, y_beacons, relatives_angles),
+		compute(Operation::Y, 1, 2, x_beacons, y_beacons, relatives_angles) - compute(Operation::Y, 2, 1, x_beacons, y_beacons, relatives_angles);
+
+	b << compute(Operation::K, 0, 1, x_beacons, y_beacons, relatives_angles) - compute(Operation::K, 1, 2, x_beacons, y_beacons, relatives_angles),
+		compute(Operation::K, 1, 2, x_beacons, y_beacons, relatives_angles) - compute(Operation::K, 2, 1, x_beacons, y_beacons, relatives_angles);
+
+	Eigen::Vector2f position = A.colPivHouseholderQr().solve(b);
 	// robot position
-	pos_tri->x = 0.0;
-	pos_tri->y = 0.0;
+	pos_tri->x = position[0];
+	pos_tri->y = position[1];
 
 	// robot orientation
-	pos_tri->theta = 0.0;
+	pos_tri->theta = rob_pos->theta;
 
 	// ----- triangulation computation end ----- //
 }
-
+double compute(Operation op, int i, int j, double *x_beacons, double *y_beacons, double *angles){
+	switch (op) {
+	case K :
+		return (pow(compute(Operation::X, i, j, x_beacons, y_beacons, angles), 2) + pow(compute(Operation::Y, i, j, x_beacons, y_beacons, angles), 2) - pow(compute(Operation::R, i, j, x_beacons, y_beacons, angles), 2))/ 2;
+	case X :
+		return ((x_beacons[i] + x_beacons[j]) + (compute(Operation::T, i, j, x_beacons, y_beacons, angles)*(y_beacons[i] - y_beacons[j])))/2;
+	case Y :
+		return ((y_beacons[i] + y_beacons[j]) - (compute(Operation::T, i, j, x_beacons, y_beacons, angles)*(x_beacons[i] - x_beacons[j]))) / 2;
+	case R :
+		return (sqrt(pow(x_beacons[i] - x_beacons[j], 2) + pow(y_beacons[i] - y_beacons[j], 2))/ 2 * sin(angles[j] - angles[i]));
+	case T :
+		return (angles[j] - angles[i] == 0 ? (1/tan(pow(10,8))) : (angles[j] - angles[i] == M_PI ? 1/tan(pow(-10, 8)) : 1/tan(angles[j] - angles[i])));
+	}
+}
 NAMESPACE_CLOSE();
