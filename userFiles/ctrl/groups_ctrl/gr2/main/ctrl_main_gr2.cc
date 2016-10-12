@@ -80,8 +80,8 @@ void controller_loop(CtrlStruct *cvs)
 	// update the robot odometry
 	update_odometry(cvs);
 
-	// triangulation
-	triangulation(cvs);
+	// // triangulation
+	// triangulation(cvs);
 
 	// opponents position
 	opponents_tower(cvs);
@@ -105,7 +105,8 @@ void controller_loop(CtrlStruct *cvs)
 		// wait before match beginning
 		case WAIT_INIT_STATE:
 			speed_regulation(cvs, 0.0, 0.0);
-		
+		// triangulation
+		triangulation(cvs);
 			if (t > 0.0)
 			{
 				cvs->main_state = RUN_STATE;
