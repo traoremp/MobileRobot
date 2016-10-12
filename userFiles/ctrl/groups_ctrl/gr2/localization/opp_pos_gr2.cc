@@ -100,7 +100,7 @@ int single_opp_tower(double last_rise, double last_fall, double rob_x, double ro
 	const double r_beacon = 0.04; //radius beacon
 	const double beacon_uncentered = 0.083; // beacon not at the center of the robot
 
-	dist = r_beacon/tan((last_fall-last_rise)/2); // distance from other beacon center
+	dist = r_beacon/sin((last_fall-last_rise)/2); // distance from other beacon center
 
 	*new_x_opp = rob_x + (beacon_uncentered*cos(rob_theta )) + dist*cos(rob_theta + (last_fall+last_rise)/2);
 	*new_y_opp = rob_y + (beacon_uncentered*sin(rob_theta )) + dist*sin(rob_theta + (last_fall+last_rise)/2);

@@ -80,11 +80,11 @@ void controller_loop(CtrlStruct *cvs)
 	// update the robot odometry
 	update_odometry(cvs);
 
-	// // triangulation
-	// triangulation(cvs);
+	// triangulation
+	triangulation(cvs);
 
 	// opponents position
-	opponents_tower(cvs);
+	//opponents_tower(cvs);
 
 	// tower control
 	outputs->tower_command = 15.0;
@@ -106,12 +106,14 @@ void controller_loop(CtrlStruct *cvs)
 		case WAIT_INIT_STATE:
 			speed_regulation(cvs, 0.0, 0.0);
 		// triangulation
-		triangulation(cvs);
-			if (t > 0.0)
+		//triangulation(cvs);
+			if(t > 5.0)
+				opponents_tower(cvs);
+			/*if (t > 0.0)
 			{
 				cvs->main_state = RUN_STATE;
 				cvs->strat->main_state = GAME_STATE_A;
-			}
+			}*/
 			break;
 
 		// during game
