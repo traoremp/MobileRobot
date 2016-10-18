@@ -120,15 +120,15 @@ void triangulation(CtrlStruct *cvs)
 	double last_falling_fixed[NB_STORE_EDGE]; ///< rotating list with the last falling edges detected [rad]
 
 	// beacons angles measured with the laser (to compute)
-	alpha_a = inputs->last_rising_fixed[rise_index_1] + (inputs->last_rising_fixed[rise_index_1] - inputs->last_falling_fixed[fall_index_1]);
-	alpha_b = inputs->last_rising_fixed[rise_index_2] + (inputs->last_rising_fixed[rise_index_2] - inputs->last_falling_fixed[fall_index_2]);
-	alpha_c = inputs->last_rising_fixed[rise_index_3] + (inputs->last_rising_fixed[rise_index_3] - inputs->last_falling_fixed[fall_index_3]);
+	alpha_a = inputs->last_rising_fixed[rise_index_1] + ((inputs->last_falling_fixed[fall_index_1] - inputs->last_rising_fixed[rise_index_1]  ) /2);
+	alpha_b = inputs->last_rising_fixed[rise_index_2] + ((inputs->last_falling_fixed[fall_index_2] - inputs->last_rising_fixed[rise_index_2] )/2);
+	alpha_c = inputs->last_rising_fixed[rise_index_3] + ((inputs->last_falling_fixed[fall_index_3] - inputs->last_rising_fixed[rise_index_3] )/2);
 
 	// beacons angles predicted thanks to odometry measurements (to compute)
-	alpha_1_predicted = M_PI + (M_PI /2 - atan((y_beac_2 - rob_pos->y) / (x_beac_2 - rob_pos->x)) + (M_PI/2 - rob_pos->theta));
-	alpha_2_predicted = M_PI /2 + atan((y_beac_1 - rob_pos->y) / (x_beac_1 - rob_pos->x)) + (M_PI/2 - rob_pos->theta);	
-	alpha_3_predicted = rob_pos->x < 0 ? 3*M_PI/2 + ( atan((y_beac_2 - rob_pos->y) / (x_beac_2 - rob_pos->x)) + (M_PI/2 - rob_pos->theta)) :
-										M_PI/2 -  ( atan((y_beac_2 - rob_pos->y) / (x_beac_2 - rob_pos->x)) +(M_PI/2 - rob_pos->theta));
+	alpha_1_predicted = ((-M_PI / 2 - atan((y_beac_1 - rob_pos->y) / (x_beac_1 - rob_pos->x)) + (-M_PI / 2 - rob_pos->theta))) - M_PI;
+	alpha_2_predicted = (-M_PI - (M_PI / 2 - atan((y_beac_2 - rob_pos->y) / (x_beac_2 - rob_pos->x)) + (-M_PI / 2 - rob_pos->theta))) - M_PI;
+	alpha_3_predicted = rob_pos->x > 0 ? (-3*M_PI/2 - ( atan((y_beac_2 - rob_pos->y) / (x_beac_2 - rob_pos->x)) + (-M_PI/2 - rob_pos->theta))) - M_PI :
+										(M_PI/2 -  ( atan((y_beac_2 - rob_pos->y) / (x_beac_2 - rob_pos->x)) +(-M_PI/2 - rob_pos->theta))) - M_PI;
 
 	// indexes of each beacon
 	alpha_1_index = index_predicted(alpha_1_predicted, alpha_a, alpha_b, alpha_c);
@@ -194,11 +194,11 @@ void triangulation(CtrlStruct *cvs)
 	Eigen::Matrix<float, 2, 1> b;
 	A << compute(Operation::X, 0, 1, x_beacons, y_beacons, relatives_angles) - compute(Operation::X, 1, 2, x_beacons, y_beacons, relatives_angles),
 		compute(Operation::Y, 0, 1, x_beacons, y_beacons, relatives_angles) - compute(Operation::Y, 1, 2, x_beacons, y_beacons, relatives_angles),
-		compute(Operation::X, 1, 2, x_beacons, y_beacons, relatives_angles) - compute(Operation::X, 2, 1, x_beacons, y_beacons, relatives_angles),
-		compute(Operation::Y, 1, 2, x_beacons, y_beacons, relatives_angles) - compute(Operation::Y, 2, 1, x_beacons, y_beacons, relatives_angles);
+		compute(Operation::X, 1, 2, x_beacons, y_beacons, relatives_angles) - compute(Operation::X, 2, 0, x_beacons, y_beacons, relatives_angles),
+		compute(Operation::Y, 1, 2, x_beacons, y_beacons, relatives_angles) - compute(Operation::Y, 2, 0, x_beacons, y_beacons, relatives_angles);
 
 	b << compute(Operation::K, 0, 1, x_beacons, y_beacons, relatives_angles) - compute(Operation::K, 1, 2, x_beacons, y_beacons, relatives_angles),
-		compute(Operation::K, 1, 2, x_beacons, y_beacons, relatives_angles) - compute(Operation::K, 2, 1, x_beacons, y_beacons, relatives_angles);
+		compute(Operation::K, 1, 2, x_beacons, y_beacons, relatives_angles) - compute(Operation::K, 2, 0, x_beacons, y_beacons, relatives_angles);
 
 	Eigen::Vector2f position = A.colPivHouseholderQr().solve(b);
 	// robot position
@@ -219,9 +219,9 @@ double compute(Operation op, int i, int j, double *x_beacons, double *y_beacons,
 	case Y :
 		return ((y_beacons[i] + y_beacons[j]) - (compute(Operation::T, i, j, x_beacons, y_beacons, angles)*(x_beacons[i] - x_beacons[j]))) / 2;
 	case R :
-		return (sqrt(pow(x_beacons[i] - x_beacons[j], 2) + pow(y_beacons[i] - y_beacons[j], 2))/ 2 * sin(angles[j] - angles[i]));
+		return (sqrt(pow(x_beacons[i] - x_beacons[j], 2) + pow(y_beacons[i] - y_beacons[j], 2))/ 2 * sin(angles[j] - angles[i] == 0 || fmod((angles[j] - angles[i]), M_PI) == 0.0 ? 0.00001 : angles[j] - angles[i]));
 	case T :
-		return (angles[j] - angles[i] == 0 ? (1/tan(pow(10,8))) : (angles[j] - angles[i] == M_PI ? 1/tan(pow(-10, 8)) : 1/tan(angles[j] - angles[i])));
+		return (angles[j] - angles[i] == 0 ? pow(10,8) : (fmod((angles[j] - angles[i]), M_PI) == 0.0 ? pow(-10, 8) : 1/tan(angles[j] - angles[i])));
 	}
 }
 NAMESPACE_CLOSE();

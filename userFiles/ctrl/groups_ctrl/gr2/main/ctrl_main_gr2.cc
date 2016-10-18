@@ -105,12 +105,14 @@ void controller_loop(CtrlStruct *cvs)
 		// wait before match beginning
 		case WAIT_INIT_STATE:
 			speed_regulation(cvs, 0.0, 0.0);
-		// triangulation
-		triangulation(cvs);
+		
 			if (t > 0.0)
 			{
-				cvs->main_state = RUN_STATE;
-				cvs->strat->main_state = GAME_STATE_A;
+				//cvs->main_state = RUN_STATE;
+				//cvs->strat->main_state = GAME_STATE_A;
+				// triangulation
+				triangulation(cvs);
+
 			}
 			break;
 
