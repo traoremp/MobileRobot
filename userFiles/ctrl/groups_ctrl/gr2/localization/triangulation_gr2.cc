@@ -189,7 +189,7 @@ void triangulation(CtrlStruct *cvs)
 	relatives_angles[2] = alpha_3;
 
 	// ----- triangulation computation start ----- //
-
+/*
 	Eigen::Matrix<float, 2, 2> A;
 	Eigen::Matrix<float, 2, 1> b;
 	A << compute(Operation::X, 0, 1, x_beacons, y_beacons, relatives_angles) - compute(Operation::X, 1, 2, x_beacons, y_beacons, relatives_angles),
@@ -200,28 +200,30 @@ void triangulation(CtrlStruct *cvs)
 	b << compute(Operation::K, 0, 1, x_beacons, y_beacons, relatives_angles) - compute(Operation::K, 1, 2, x_beacons, y_beacons, relatives_angles),
 		compute(Operation::K, 1, 2, x_beacons, y_beacons, relatives_angles) - compute(Operation::K, 2, 0, x_beacons, y_beacons, relatives_angles);
 
-	Eigen::Vector2f position = A.colPivHouseholderQr().solve(b);
+	Eigen::Vector2f position = A.colPivHouseholderQr().solve(b);*/
 	// robot position
-	pos_tri->x = position[0];
-	pos_tri->y = position[1];
+	double *positions = compute(x_beacons, y_beacons, relatives_angles)()->get_positions();
+	const double beacon_uncentered = 0.083; // beacon not at the center of the robot
+	pos_tri->x = positions[0] + beacon_uncentered * cos(rob_pos->theta);
+	pos_tri->y = positions[1] - beacon_uncentered * sin(rob_pos->theta);
 
 	// robot orientation
 	pos_tri->theta = rob_pos->theta;
 
 	// ----- triangulation computation end ----- //
 }
-double compute(Operation op, int i, int j, double *x_beacons, double *y_beacons, double *angles){
-	switch (op) {
-	case K :
-		return (pow(compute(Operation::X, i, j, x_beacons, y_beacons, angles), 2) + pow(compute(Operation::Y, i, j, x_beacons, y_beacons, angles), 2) - pow(compute(Operation::R, i, j, x_beacons, y_beacons, angles), 2))/ 2;
-	case X :
-		return ((x_beacons[i] + x_beacons[j]) + (compute(Operation::T, i, j, x_beacons, y_beacons, angles)*(y_beacons[i] - y_beacons[j])))/2;
-	case Y :
-		return ((y_beacons[i] + y_beacons[j]) - (compute(Operation::T, i, j, x_beacons, y_beacons, angles)*(x_beacons[i] - x_beacons[j]))) / 2;
-	case R :
-		return (sqrt(pow(x_beacons[i] - x_beacons[j], 2) + pow(y_beacons[i] - y_beacons[j], 2))/ 2 * sin(angles[j] - angles[i] == 0 || fmod((angles[j] - angles[i]), M_PI) == 0.0 ? 0.00001 : angles[j] - angles[i]));
-	case T :
-		return (angles[j] - angles[i] == 0 ? pow(10,8) : (fmod((angles[j] - angles[i]), M_PI) == 0.0 ? pow(-10, 8) : 1/tan(angles[j] - angles[i])));
-	}
-}
+//double compute(Operation op, int i, int j, double *x_beacons, double *y_beacons, double *angles){
+//	switch (op) {
+//	case Beacon_coord :
+//		return;
+//	case K :
+//		return;
+//	case D :
+//		return;
+//	case Circle_center :
+//		return;
+//	case Cot :
+//		return (angles[j] - angles[i] == 0 ? pow(10,8) : (fmod((angles[j] - angles[i]), M_PI) == 0.0 ? pow(-10, 8) : 1/tan(angles[j] - angles[i])));
+//	}
+//}
 NAMESPACE_CLOSE();
