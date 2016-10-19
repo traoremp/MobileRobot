@@ -4,7 +4,7 @@
 #include "useful_gr2.h"
 #include "init_pos_gr2.h"
 #include <math.h>
-
+#include <iostream>
 NAMESPACE_INIT(ctrlGr2);
 
 #define DEG_TO_RAD (M_PI/180.0) ///< convertion from degrees to radians
@@ -79,8 +79,8 @@ void calibration(CtrlStruct *cvs)
 
 		case CALIB_STATE_C: // state C
 			speed_regulation(cvs, -10, 10);
-
-			if (rob_pos->theta <= -M_PI ){
+			
+			if (rob_pos->theta + 0.2 >=  M_PI ){
 				calib->flag = CALIB_STATE_D;
 				calib->t_flag = t;
 			}
@@ -92,7 +92,7 @@ void calibration(CtrlStruct *cvs)
 
 			if (inputs->u_switch[0] && inputs->u_switch[1]){
 				rob_pos->x = 1.0 - 0.06;//size map - dist uswitch
-				rob_pos->theta = -M_PI;
+				rob_pos->theta = M_PI;
 
 				calib->flag = CALIB_STATE_E;
 				calib->t_flag = t;

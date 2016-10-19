@@ -57,6 +57,7 @@ double limit_angle(double value)
 	return value;
 }
 
+
 /*! \brief return the interpolation between two points
  * 
  * \attention if x is outside the bounds, it equals the closest bound

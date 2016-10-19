@@ -125,10 +125,10 @@ void triangulation(CtrlStruct *cvs)
 	alpha_c = inputs->last_rising_fixed[rise_index_3] + ((inputs->last_falling_fixed[fall_index_3] - inputs->last_rising_fixed[rise_index_3] )/2);
 
 	// beacons angles predicted thanks to odometry measurements (to compute)
-	alpha_1_predicted = ((-M_PI / 2 - atan((y_beac_1 - rob_pos->y) / (x_beac_1 - rob_pos->x)) + (-M_PI / 2 - rob_pos->theta))) - M_PI;
-	alpha_2_predicted = (-M_PI - (M_PI / 2 - atan((y_beac_2 - rob_pos->y) / (x_beac_2 - rob_pos->x)) + (-M_PI / 2 - rob_pos->theta))) - M_PI;
-	alpha_3_predicted = rob_pos->x > 0 ? (-3*M_PI/2 - ( atan((y_beac_2 - rob_pos->y) / (x_beac_2 - rob_pos->x)) + (-M_PI/2 - rob_pos->theta))) - M_PI :
-										(M_PI/2 -  ( atan((y_beac_2 - rob_pos->y) / (x_beac_2 - rob_pos->x)) +(-M_PI/2 - rob_pos->theta))) - M_PI;
+	alpha_1_predicted = ((atan((y_beac_1 - rob_pos->y) / (x_beac_1 - rob_pos->x)) + limit_angle(-M_PI / 2 + rob_pos->theta)));
+	alpha_2_predicted = (M_PI/2 + (M_PI / 2 - atan((y_beac_2 - rob_pos->y) / (x_beac_2 - rob_pos->x)) + limit_angle(-M_PI / 2 + rob_pos->theta))) ;
+	alpha_3_predicted = rob_pos->x > 0 ? (-M_PI + ( atan((y_beac_2 - rob_pos->y) / (x_beac_2 - rob_pos->x)) + limit_angle(-M_PI/2 + rob_pos->theta))) :
+										(-M_PI/2 + (M_PI/2 -  ( atan((y_beac_2 - rob_pos->y) / (x_beac_2 - rob_pos->x))) + limit_angle(-M_PI/2 + rob_pos->theta)));
 
 	// indexes of each beacon
 	alpha_1_index = index_predicted(alpha_1_predicted, alpha_a, alpha_b, alpha_c);
