@@ -46,13 +46,13 @@ public:
 		beac_pos_x_1 = x_beacons_[0] - x_beacons_[1];
 		beac_pos_y_1 = y_beacons_[0] - y_beacons_[1];
 
-		beac_pos_x_3 = x_beacons_[2] - x_beacons_[0];
-		beac_pos_y_3 = x_beacons_[2] - x_beacons_[0];
+		beac_pos_x_3 = x_beacons_[2] - x_beacons_[1];
+		beac_pos_y_3 = y_beacons_[2] - y_beacons_[1];
 
 		//compute the three cot()
 		cot_1_2 = (angles_[1] - angles_[0] == 0 ? pow(10, 8) : (fmod((angles_[1] - angles_[0]), M_PI) == 0.0 ? pow(-10, 8) : 1 / tan(angles_[1] - angles_[0])));
 		cot_2_3 = (angles_[2] - angles_[1] == 0 ? pow(10, 8) : (fmod((angles_[2] - angles_[1]), M_PI) == 0.0 ? pow(-10, 8) : 1 / tan(angles_[2] - angles_[1])));
-		cot_3_1 = (angles_[0] - angles_[2] == 0 ? pow(10, 8) : (fmod((angles_[0] - angles_[2]), M_PI) == 0.0 ? pow(-10, 8) : 1 / tan(angles_[0] - angles_[2])));
+		cot_3_1 = (1 - (cot_1_2 * cot_2_3)) / (cot_1_2 + cot_2_3);
 
 		//compute modified circle center
 		center_X_1_2 = beac_pos_x_1 + cot_1_2 * beac_pos_y_1;
@@ -65,7 +65,7 @@ public:
 		center_Y_3_1 = (beac_pos_y_3 + beac_pos_y_1) - cot_3_1 * (beac_pos_x_3 - beac_pos_x_1);
 
 		//compute K31
-		K_3_1 = beac_pos_x_1 * beac_pos_x_3 + beac_pos_y_1 * beac_pos_y_3 + cot_3_1*(beac_pos_x_1*beac_pos_y_3 - beac_pos_x_3*beac_pos_y_1);
+		K_3_1 = (beac_pos_x_1 * beac_pos_x_3) + (beac_pos_y_1 * beac_pos_y_3) + cot_3_1*(beac_pos_x_1*beac_pos_y_3 - beac_pos_x_3*beac_pos_y_1);
 
 		//compute D
 		D = (center_X_1_2 - center_X_2_3) * (center_Y_2_3 - center_Y_3_1) - (center_Y_1_2 - center_Y_2_3) * (center_X_2_3 - center_X_3_1);

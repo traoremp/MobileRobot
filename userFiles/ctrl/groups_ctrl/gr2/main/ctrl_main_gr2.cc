@@ -104,16 +104,20 @@ void controller_loop(CtrlStruct *cvs)
 
 		// wait before match beginning
 		case WAIT_INIT_STATE:
-			speed_regulation(cvs, 0.0, 0.0);
+			//speed_regulation(cvs, 0.0, 0.0);
 		
 			if (t > 0.0)
 			{
 				//cvs->main_state = RUN_STATE;
 				//cvs->strat->main_state = GAME_STATE_A;
+				
 				// triangulation
 				triangulation(cvs);
+				speed_regulation(cvs, 10, 10);
 
 			}
+			else
+				speed_regulation(cvs, 0.0, 0.0);
 			break;
 
 		// during game

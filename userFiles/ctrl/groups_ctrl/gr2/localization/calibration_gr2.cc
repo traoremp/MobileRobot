@@ -121,7 +121,7 @@ void calibration(CtrlStruct *cvs)
 		case CALIB_STATE_F: // state C
 			speed_regulation(cvs, 10, -10);
 
-			if (rob_pos->theta >= -M_PI/2 ){
+			if (rob_pos->theta >= -M_PI/2 && !(rob_pos->theta >= M_PI/2) ){
 				calib->flag = CALIB_FINISH;
 				calib->t_flag = t;
 			}
