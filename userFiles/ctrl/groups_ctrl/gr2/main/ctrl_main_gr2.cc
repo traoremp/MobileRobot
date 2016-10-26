@@ -91,6 +91,7 @@ void controller_loop(CtrlStruct *cvs)
 
 	//set_plot(inputs->r_wheel_speed, "R_w_in[rad/s]");
 	//set_plot(inputs->l_wheel_speed, "L_w_in[rad/s]");
+
 	set_plot(cvs->rob_pos->x, "x_odo[m]");
 	set_plot(cvs->rob_pos->y, "y_odo[m]");
 	set_plot(cvs->rob_pos->theta, "theta_odo[rad]");
