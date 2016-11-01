@@ -57,6 +57,8 @@ void user_dirdyn_loop(MbsData *mbs_data, MbsDirdyn *mbs_dd)
 	set_plot(mbs_data->q[FJ_T2_robot_B_id], "y[m]");
 	set_plot(mbs_data->q[FJ_R3_robot_B_id], "theta[rad]");
 
+	
+
 }
 
 /*! \brief user own finishing functions

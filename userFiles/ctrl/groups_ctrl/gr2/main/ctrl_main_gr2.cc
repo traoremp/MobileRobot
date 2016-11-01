@@ -92,10 +92,12 @@ void controller_loop(CtrlStruct *cvs)
 	//set_plot(inputs->r_wheel_speed, "R_w_in[rad/s]");
 	//set_plot(inputs->l_wheel_speed, "L_w_in[rad/s]");
 
-	set_plot(cvs->rob_pos->x, "x_odo[m]");
+	/*set_plot(cvs->rob_pos->x, "x_odo[m]");
 	set_plot(cvs->rob_pos->y, "y_odo[m]");
-	set_plot(cvs->rob_pos->theta, "theta_odo[rad]");
-
+	set_plot(cvs->rob_pos->theta, "theta_odo[rad]");*/
+	set_plot(cvs->triang_pos->x, "x_tri[m]");
+	set_plot(cvs->triang_pos->y, "y_tri[m]");
+	set_plot(cvs->triang_pos->theta, "theta_tri[rad]");
 	switch (cvs->main_state)
 	{
 		// calibration
@@ -114,7 +116,12 @@ void controller_loop(CtrlStruct *cvs)
 				
 				// triangulation
 				triangulation(cvs);
-				speed_regulation(cvs, 10, 10);
+				if (t < 16.0 )
+					t > 10.0 ? speed_regulation(cvs, 10, 10) : speed_regulation(cvs, 0.0, 0.0);
+				else if (t >= 16.0 && !(cvs->rob_pos->theta + 0.2 >= M_PI))
+					speed_regulation(cvs, -10, 10);
+				else
+					speed_regulation(cvs, 10, 10);
 
 			}
 			else
