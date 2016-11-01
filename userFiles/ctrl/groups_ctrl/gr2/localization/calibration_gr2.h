@@ -19,6 +19,9 @@ typedef struct RobotCalibration
 
 	int flag; ///< flag for calibration
 
+	double wall_Y;
+	double wall_X;
+
 } RobotCalibration;
 
 void calibration(CtrlStruct *cvs);

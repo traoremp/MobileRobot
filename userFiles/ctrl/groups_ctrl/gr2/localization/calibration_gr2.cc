@@ -23,6 +23,7 @@ void calibration(CtrlStruct *cvs)
 	// variables declaration
 	int team_id;
 	double t;
+	double dist_uswitch = 0.06;
 
 	CtrlIn *inputs;
 	RobotCalibration *calib;
@@ -37,11 +38,22 @@ void calibration(CtrlStruct *cvs)
 	t = inputs->t;
 	team_id = cvs->team_id;
 
+
 	// finite state machine (FSM)
 	switch (calib->flag)
 	{
 		case CALIB_START: // start calibration
 			speed_regulation(cvs, 0.0, 0.0);
+
+			switch (team_id)
+			{
+				case TEAM_A: calib->wall_Y = 1.5 - dist_uswitch; calib->wall_X = 1.0 - dist_uswitch; break;
+				case TEAM_B: calib->wall_Y = -1.5 + dist_uswitch; calib->wall_X  = 0.5 + dist_uswitch; break;
+				
+				default:
+					printf("Error: unknown team ID: %d !\n", team_id);
+					exit(EXIT_FAILURE);
+			}
 
 			calib->flag = CALIB_STATE_A; // directly go to state A
 			calib->t_flag = t;
@@ -51,8 +63,9 @@ void calibration(CtrlStruct *cvs)
 			speed_regulation(cvs, -10, -10);
 
 			if (inputs->u_switch[0] && inputs->u_switch[1]){
-				rob_pos->y = 1.500 - 0.06;//size map - dist uswitch
-				rob_pos->theta = -M_PI/2;
+				rob_pos->y = calib->wall_Y;//size map - dist uswitch
+				if (team_id == TEAM_A) rob_pos->theta = -M_PI/2;
+				if (team_id == TEAM_B) rob_pos->theta = M_PI/2;
 
 				calib->flag = CALIB_STATE_B;
 				calib->t_flag = t;
@@ -80,7 +93,7 @@ void calibration(CtrlStruct *cvs)
 		case CALIB_STATE_C: // state C
 			speed_regulation(cvs, -10, 10);
 			
-			if (rob_pos->theta + 0.2 >=  M_PI ){
+			if ((rob_pos->theta + 0.2 >=  M_PI && team_id==TEAM_A)|| (rob_pos->theta <= 0.0 && team_id == TEAM_B) ){
 				calib->flag = CALIB_STATE_D;
 				calib->t_flag = t;
 			}
@@ -91,8 +104,9 @@ void calibration(CtrlStruct *cvs)
 			speed_regulation(cvs, -10, -10);
 
 			if (inputs->u_switch[0] && inputs->u_switch[1]){
-				rob_pos->x = 1.0 - 0.06;//size map - dist uswitch
-				rob_pos->theta = M_PI;
+				rob_pos->x = calib->wall_X;//size map - dist uswitch
+				if (team_id == TEAM_A) rob_pos->theta = M_PI;
+				if (team_id == TEAM_B) rob_pos->theta = 0.0;
 
 				calib->flag = CALIB_STATE_E;
 				calib->t_flag = t;
@@ -121,7 +135,7 @@ void calibration(CtrlStruct *cvs)
 		case CALIB_STATE_F: // state C
 			speed_regulation(cvs, 10, -10);
 
-			if (rob_pos->theta >= -M_PI/2 && !(rob_pos->theta >= M_PI/2) ){
+			if ((rob_pos->theta >= -M_PI/2 && !(rob_pos->theta >= M_PI/2) && team_id == TEAM_A) || (rob_pos->theta >= M_PI/2 && team_id == TEAM_B) ){
 				calib->flag = CALIB_FINISH;
 				calib->t_flag = t;
 			}
