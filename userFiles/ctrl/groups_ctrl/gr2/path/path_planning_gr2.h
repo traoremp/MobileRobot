@@ -9,9 +9,24 @@
  
 #include "namespace_ctrl.h"
 #include "CtrlStruct_gr2.h"
-
+#include <memory>
+#include <vector>
 NAMESPACE_INIT(ctrlGr2);
+class PathTree{
+	public:
+		PathTree();
 
+	private:
+		std::unique_ptr<TreeNode> root_;
+		std::unique_ptr<TreeNode> target_Node_;
+}
+class TreeNode{
+	public:
+		TreeNode();
+	private:
+		std::unique_ptr<TreeNode> parent_;
+		vector<std::unique_ptr<std::pair<int, TreeNode>>> children_;
+}
 /// path-planning main structure
 struct PathPlanning
 {
