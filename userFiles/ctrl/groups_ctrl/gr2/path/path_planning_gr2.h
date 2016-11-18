@@ -13,43 +13,48 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <list>
+#include <Eigen/Dense>
+
+
+#define Map_Element Eigen::Vector2d //first -> X, second -> Y
 NAMESPACE_INIT(ctrlGr2);
-class Map_Element {
-	public: 
-		Map_Element(double, double);
-	private: 
-		double position_x_;
-		double position_y_;
-}
+
 class Obstacle{
 	public: 
-		Obstacle(std::unique_ptr<std::List> points);
+		Obstacle(std::list<std::shared_ptr<Map_Element>> points);
+		std::list<std::shared_ptr<Map_Element>> getPoints() { return points_; }
 	private : 
-		std::unique_ptr<std::List<std::unique_ptr<Map_Element>>> points_; 
-}
+		std::list<std::shared_ptr<Map_Element>> points_; 
+};
 class TreeNode{
 	public:
-		TreeNode();
+		TreeNode() {};
+		void add_child(std::unique_ptr<std::pair<int, TreeNode>>);
 	private:
 		std::unique_ptr<TreeNode> parent_;
-		vector<std::unique_ptr<std::pair<int, TreeNode>>> children_;
+		std::vector<std::unique_ptr<std::pair<int, TreeNode>>> children_;
 		Map_Element position_;
-}
+};
 class PathTree{
 	public:
-		PathTree();
+		PathTree() {};
+		
 
 	private:
 		std::unique_ptr<TreeNode> root_;
 		std::unique_ptr<TreeNode> target_Node_;
-}
+};
 /// path-planning main structure
 struct PathPlanning
 {
-	std::unique_ptr<std::set<Obstacle>> obstacles_;
-	int dummy_variable; ///< put your own variable, this is just an example without purpose
+	void init_tree(Map_Element rob_pos, Map_Element destination);
+	std::unique_ptr<std::vector<Map_Element>> vertices_;
+	std::unique_ptr<std::vector<Obstacle>> obstacles_;
+	std::unique_ptr<PathTree> tree_;
+	//int dummy_variable; ///< put your own variable, this is just an example without purpose
 };
-
+bool isConnectable(PathPlanning& p, Map_Element, Map_Element);
 PathPlanning* init_path_planning();
 void free_path_planning(PathPlanning *path);
 
