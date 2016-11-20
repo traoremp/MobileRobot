@@ -65,6 +65,11 @@ NAMESPACE_INIT(ctrlGr2);
 struct PathPlanning
 {
 	int dummy_variable; ///< put your own variable, this is just an example without purpose
+
+	//array of the map with position of elements we need (obstacles, goal,...)
+	int map[MAP_LENGTH][MAP_WIDTH];
+
+	
 };
 
 PathPlanning* init_path_planning();
