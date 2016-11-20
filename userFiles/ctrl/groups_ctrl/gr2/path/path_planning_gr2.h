@@ -10,15 +10,11 @@
 #include "namespace_ctrl.h"
 #include "CtrlStruct_gr2.h"
 
-#define COORDS			2
-#define X				0
-#define Y				1
-
 //number of cells (length and width) of the map (2000x3000 mm) so their size are 50x50 mm
 #define MAP_LENGTH		60
 #define MAP_WIDTH		40
 #define CELL_SIZE		50
-#define GOAL			2
+#define COORDS			2
 
 //end position i,j of top left, bot left, top right, bot right little walls
 #define TL_WALL_i		650/CELL_SIZE  
@@ -64,7 +60,8 @@ NAMESPACE_INIT(ctrlGr2);
 /// path-planning main structure
 struct PathPlanning
 {
-	int dummy_variable; ///< put your own variable, this is just an example without purpose
+	int map[MAP_LENGTH][MAP_WIDTH]; //array of the map with position of elements we need (obstacles, goal,...)
+	int goal_pos[COORDS]; // position of the goal
 };
 
 PathPlanning* init_path_planning();

@@ -9,6 +9,12 @@
 
 #include "CtrlStruct_gr2.h"
 
+// Constantes
+#define COORDS			2
+#define I				0
+#define J				1
+#define GOAL			2
+
 NAMESPACE_INIT(ctrlGr2);
 
 void follow_path(CtrlStruct *cvs);
