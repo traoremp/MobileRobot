@@ -53,7 +53,7 @@ static const double wall_4[] = {
 Obstacle::Obstacle(std::list<std::shared_ptr<Map_Element>> points){
 	points_ = std::move(points);
 }
-void TreeNode::add_child(std::unique_ptr<std::pair<int, TreeNode>> vertex) {
+void TreeNode::add_child(std::unique_ptr<std::pair<int, std::shared_ptr<TreeNode>>> vertex) {
 	children_.push_back(std::move(vertex));
 }
 
@@ -82,7 +82,7 @@ PathPlanning* init_path_planning()
 		Map_Element point;
 		while (tab[i]) {
 			point << tab[i - 1], tab[i];
-			path->vertices_->push_back(point);
+			path->vertices_->push_back(std::make_shared<TreeNode>(point));
 			obs.add_point(point);
 			i+=2;
 		}
@@ -106,19 +106,23 @@ void free_path_planning(PathPlanning *path)
 	free(path);
 }
 void PathPlanning::init_tree(Map_Element rob_pos, Map_Element destination) {
-	std::unique_ptr<TreeNode> root = std::make_unique<TreeNode>(rob_pos);
-	std::unique_ptr<TreeNode> destination_node = std::make_unique<TreeNode>(destination);
-	vertices_->push_back(rob_pos);
-	vertices_->push_back(Map_Element(-0.91, 1.41));
-	vertices_->push_back(Map_Element(0.91, 1.41));
-	vertices_->push_back(Map_Element(-0.91, -1.41 ));
-	vertices_->push_back(Map_Element(0.91, -1.41));
-	vertices_->push_back(destination);
-	std::for_each(vertices_->begin(), vertices_->end(), [&](Map_Element& pointA) {
-		std::for_each(vertices_->begin(), vertices_->end(), [&](Map_Element& pointB) {
+	std::shared_ptr<TreeNode> root = std::make_shared<TreeNode>(rob_pos);
+	std::shared_ptr<TreeNode> destination_node = std::make_shared<TreeNode>(destination);
+	vertices_->push_back(root);
+	vertices_->push_back(std::make_shared<TreeNode>(Map_Element(-0.91, 1.41)));
+	vertices_->push_back(std::make_shared<TreeNode>(Map_Element(0.91, 1.41)));
+	vertices_->push_back(std::make_shared<TreeNode>(Map_Element(-0.91, -1.41 )));
+	vertices_->push_back(std::make_shared<TreeNode>(Map_Element(0.91, -1.41)));
+	vertices_->push_back(std::make_shared<TreeNode>(destination));
+	std::for_each(vertices_->begin(), vertices_->end(), [&](std::shared_ptr<TreeNode> nodeA) {
+		std::for_each(vertices_->begin(), vertices_->end(), [&](std::shared_ptr<TreeNode> nodeB) {
+			Map_Element pointA = nodeA->getPosition();
+			Map_Element pointB = nodeB->getPosition();
 			if (PathPlanning::isConnectable(pointA, pointB)) {
-				std::unique_ptr<std::pair<int, TreeNode>> node = std::make_unique<std::pair<int, TreeNode>>();
+				std::unique_ptr<std::pair<int, std::shared_ptr<TreeNode>>> node = std::make_unique<std::pair<int, std::shared_ptr<TreeNode>>>();
 				node->first = (pointB - pointA).norm();
+				node->second = nodeB;
+				nodeA->add_child(std::move(node));
 			}
 		});
 	});
@@ -134,7 +138,7 @@ bool PathPlanning::isConnectable( Map_Element OA, Map_Element OB)
 		return false;
 	vec_AB /= k;
 	for (int i = 1; i <= k; i++) {
-		Map_Element point_to_test = (OA + k * vec_AB);
+		Map_Element point_to_test = (OA + i * vec_AB);
 		for (auto& obstacle : *this->obstacles_) {
 			angle = 0;
 			std::list<std::shared_ptr<Map_Element>>& points = obstacle.getPoints();
