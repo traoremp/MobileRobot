@@ -13,7 +13,7 @@ NAMESPACE_INIT(ctrlGr2);
 void follow_path(CtrlStruct *cvs)
 {
 	//variables used for potential field algorithm
-	float dt = 0.1;
+	//float dt = 0.1;
 	
 	int distanceThreshold = 20; //threshold for repulsive field
 	float k_att = 0.1;
@@ -21,7 +21,7 @@ void follow_path(CtrlStruct *cvs)
 	int F_att_max = 30;
 	int F_att_min = 12;
 	int F_rep_max = 50;
-	float rob_pos[COORDS];
+	int rob_pos[COORDS];
 	int goal_pos[COORDS] = {0,0};
 	
 	float rot_speed = 1.8; //constante used for forcetocommand to specify the rotation speed 
@@ -40,8 +40,8 @@ void follow_path(CtrlStruct *cvs)
 	float alpha;
 	
 	cvs->path->map[goal_pos[X]][goal_pos[Y]] = GOAL;
-	rob_pos[X] = cvs->rob_pos->x;
-	rob_pos[Y] = cvs->rob_pos->y;
+	rob_pos[I] = cvs->rob_pos->y*-1000-1500;
+	rob_pos[J] = cvs->rob_pos->x*1000-1000;
 	
 	/*F_att[X] = -k_att*(rob_pos[X]-goal_pos[X]);
 	F_att[Y] = -k_att*(rob_pos[Y]-goal_pos[Y]);
