@@ -3,6 +3,7 @@
 #include "opp_pos_gr2.h"
 #include "useful_gr2.h"
 #include <math.h>
+#include <algorithm>
 
 NAMESPACE_INIT(ctrlGr2);
 
@@ -68,10 +69,25 @@ PathPlanning* init_path_planning()
 	path = (PathPlanning*) malloc(sizeof(PathPlanning));
 
 	// ----- path-planning initialization start ----- //
-
-
+	std::vector<const double*> obstacles_coordinates(0);
+	obstacles_coordinates.push_back(centre_obstacle);
+	obstacles_coordinates.push_back(wall_1);
+	obstacles_coordinates.push_back(wall_2);
+	obstacles_coordinates.push_back(wall_3);
+	obstacles_coordinates.push_back(wall_4);
 	// ----- path-planning initialization end ----- //
-
+	std::for_each(obstacles_coordinates.begin(), obstacles_coordinates.end(), [&](double* tab){
+		int i = 1;
+		Obstacle obs;
+		Map_Element point;
+		while (tab[i]) {
+			point << tab[i - 1], tab[i];
+			path->vertices_->push_back(point);
+			obs.add_point(point);
+			i+=2;
+		}
+		path->obstacles_->push_back(obs);
+	});
 	// return structure initialized
 	return path;
 }
@@ -89,16 +105,37 @@ void free_path_planning(PathPlanning *path)
 
 	free(path);
 }
+void PathPlanning::init_tree(Map_Element rob_pos, Map_Element destination) {
+	std::unique_ptr<TreeNode> root = std::make_unique<TreeNode>(rob_pos);
+	std::unique_ptr<TreeNode> destination_node = std::make_unique<TreeNode>(destination);
+	vertices_->push_back(rob_pos);
+	vertices_->push_back(Map_Element(-0.91, 1.41));
+	vertices_->push_back(Map_Element(0.91, 1.41));
+	vertices_->push_back(Map_Element(-0.91, -1.41 ));
+	vertices_->push_back(Map_Element(0.91, -1.41));
+	vertices_->push_back(destination);
+	std::for_each(vertices_->begin(), vertices_->end(), [&](Map_Element& pointA) {
+		std::for_each(vertices_->begin(), vertices_->end(), [&](Map_Element& pointB) {
+			if (PathPlanning::isConnectable(pointA, pointB)) {
+				std::unique_ptr<std::pair<int, TreeNode>> node = std::make_unique<std::pair<int, TreeNode>>();
+				node->first = (pointB - pointA).norm();
+			}
+		});
+	});
+	PathPlanning::tree_ = std::make_unique<PathTree>(root, destination_node);
 
-bool isConnectable(PathPlanning& p, Map_Element OA, Map_Element OB)
+}
+bool PathPlanning::isConnectable( Map_Element OA, Map_Element OB)
 {
 	double angle;
 	const int k = 400; // subdiviser le segment reliant A et B et tester 400points differents de la liaison pour detecter une eventuelle collision
 	Map_Element vec_AB = OB - OA;
+	if (vec_AB.norm() == 0)
+		return false;
 	vec_AB /= k;
 	for (int i = 1; i <= k; i++) {
 		Map_Element point_to_test = (OA + k * vec_AB);
-		for (auto& obstacle : *p.obstacles_) {
+		for (auto& obstacle : *this->obstacles_) {
 			angle = 0;
 			std::list<std::shared_ptr<Map_Element>>& points = obstacle.getPoints();
 			std::list<std::shared_ptr<Map_Element>>::iterator& it = points.begin();
@@ -111,6 +148,11 @@ bool isConnectable(PathPlanning& p, Map_Element OA, Map_Element OB)
 				angle += std::acos((vec_1.dot(vec_2))/(vec_1.norm() * vec_2.norm()));
 				
 			}
+			previous_it = it;
+			it = points.begin();
+			Map_Element vec_1 = *(previous_it)->get() - point_to_test;
+			Map_Element vec_2 = *(it)->get() - point_to_test;
+			angle += std::acos((vec_1.dot(vec_2)) / (vec_1.norm() * vec_2.norm()));
 			if ((std::ceil(angle*100)/100 == std::ceil(2 * M_PI*100)/100))
 				return false;	
 		}
