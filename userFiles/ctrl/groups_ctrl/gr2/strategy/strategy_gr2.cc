@@ -48,7 +48,8 @@ void main_strategy(CtrlStruct *cvs)
 	switch (strat->main_state)
 	{
 		case GAME_STATE_A:
-			speed_regulation(cvs, 0.0, 0.0);
+			follow_path(cvs);
+			//speed_regulation(cvs, 0.0, 0.0);
 			break;
 
 		case GAME_STATE_B:

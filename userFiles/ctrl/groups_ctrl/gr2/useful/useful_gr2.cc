@@ -85,4 +85,18 @@ int sign(float input)
 	else
 		return 0;
 }
+
+/*! \brief return the determinant of 2X2 matrix composed of [E1 E2]
+*
+* \param[in] E1,E2: vector
+* \return det(a)
+*/
+float Det2X2Matrix(float * E1, float * E2)
+{
+	float det;
+
+	det = E1[0] * E2[1] - E1[1] * E2[0];
+	return det;
+}
+
 NAMESPACE_CLOSE();

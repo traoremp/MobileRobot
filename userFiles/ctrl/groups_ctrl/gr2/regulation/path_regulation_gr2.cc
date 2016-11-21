@@ -3,6 +3,7 @@
 #include "speed_regulation_gr2.h"
 #include "init_pos_gr2.h"
 #include "path_planning_gr2.h"
+#include <iostream>
 
 NAMESPACE_INIT(ctrlGr2);
 
@@ -13,7 +14,7 @@ NAMESPACE_INIT(ctrlGr2);
 void follow_path(CtrlStruct *cvs)
 {	
 	int rob_pos[COORDS];
-	int goal_pos[COORDS] = {0,0};
+	int goal_pos[COORDS] = {55,20};
 	
 	//attractive and repulsive forces
 	float F_att[COORDS];
@@ -28,14 +29,14 @@ void follow_path(CtrlStruct *cvs)
 	float alpha;
 	
 	cvs->path->map[goal_pos[I]][goal_pos[J]] = GOAL;
-	rob_pos[I] = cvs->rob_pos->y*-1000-1500;
-	rob_pos[J] = cvs->rob_pos->x*1000-1000;
+	rob_pos[I] = (int)((1500 - cvs->rob_pos->y*1000)/CELL_SIZE);
+	rob_pos[J] = (int)((1000 + cvs->rob_pos->x*1000)/CELL_SIZE);
 	
 	// --- Potential Field algorithm (start) --- //
 	
 	F_att[I] = -K_ATT*(rob_pos[I]-goal_pos[I]);
 	F_att[J] = -K_ATT*(rob_pos[J]-goal_pos[J]);
-	while (norm_dist(F_att[I],F_att[J]) > F_ATT_MAX)
+	/*while (norm_dist(F_att[I],F_att[J]) > F_ATT_MAX)
 	{
 		F_att[I] = F_att[I]-sign(F_att[I]);
 		F_att[J] = F_att[J]-sign(F_att[J]);
@@ -80,14 +81,17 @@ void follow_path(CtrlStruct *cvs)
 	{
 		F_rep[I] = F_rep[I]-sign(F_rep[I]);
 		F_rep[J] = F_rep[J]-sign(F_rep[J]);
-	}
+	}*/
 
-    F_tot[I] = F_att[I] + F_rep[I];
-	F_tot[J] = F_att[J] + F_rep[J];
-	
+	F_tot[I] = F_att[I];// +F_rep[I];
+	F_tot[J] = F_att[J];// +F_rep[J];
+	//std::cout << F_tot[I] << ",";
+	//std::cout << F_tot[J] << std::endl;
 	// --- Potential Field algorithm (end) --- //
 	
 	// --- Force to motors command transformation (sart) --- //
+
+	ForceToCommand(F_tot, cvs);
 	
 	// --- Force to motors command transformation (end) --- //
 }
@@ -95,25 +99,42 @@ void follow_path(CtrlStruct *cvs)
 //set the command to motors by transforming the vector F_tot
 void ForceToCommand(float F[], CtrlStruct *cvs)
 {
-	float w[COORDS] = {0,0};
+	float wl =0;
+	float wr =0;
+
+	float vecteur_pos_rob[COORDS];
+	float alpha;
+	float ampl;
 	
     if (F[I] || F[J])
 	{
-        vecteur_pos_rob = [cos(rob_theta) sin(rob_theta)];
+        vecteur_pos_rob[I] = cos(cvs->rob_pos->theta + M_PI/2);
+        vecteur_pos_rob[J] = sin(cvs->rob_pos->theta + M_PI/2);
 
-        alpha = acos((F*vecteur_pos_rob')/(norm(F)*norm(vecteur_pos_rob)));
-        %limite angle -pi/pi
-        while (alpha>=pi) alpha = alpha-2*pi; end
-        while (alpha>=pi) alpha = alpha-2*pi; end
+        alpha = acos((F[I]*vecteur_pos_rob[I]+F[J]*vecteur_pos_rob[J])/(norm_dist(F[I],F[J])*norm_dist(vecteur_pos_rob[I],vecteur_pos_rob[J])));
+        //alpha = acos((F*vecteur_pos_rob')/(norm(F)*norm(vecteur_pos_rob)));
+
+        //limite angle -pi/pi
+        alpha = limit_angle(alpha);
+
+		//std::cout << alpha << std::endl;
         
         //sign of the angle 
-        alpha = sign(det([vecteur_pos_rob' F']))*alpha;
+		//alpha = sign(det([vecteur_pos_rob' F']))*alpha;
+		alpha = sign(Det2X2Matrix(vecteur_pos_rob, F))*alpha;
 
         ampl = norm_dist(F[I], F[J]);
 
-        wl = ampl - rot_speed*alpha/pi*ampl;
-        wr = ampl + rot_speed*alpha/pi*ampl;
+        wl = ampl - ROT_SPEED*alpha/M_PI*ampl;
+        wr = ampl + ROT_SPEED*alpha/M_PI*ampl;
     }
+    else
+   	{
+   		wl = 0;
+   		wr = 0;
+   	}
+
+   	speed_regulation(cvs, wr, wl);
 
 }
 NAMESPACE_CLOSE();
