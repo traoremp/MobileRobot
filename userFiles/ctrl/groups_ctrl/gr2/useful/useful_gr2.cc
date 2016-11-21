@@ -71,5 +71,18 @@ double first_order_filter(double last_val, double new_val, double tau, double de
 	return f * frac * new_val + frac * last_val;
 }
 
-
+/*! \brief return the sign of a float number
+ * 
+ * \param[in] input float number
+ * \return sign +1,-1,0
+ */
+int sign(float input)
+{
+	if(input > 0)
+		return 1;
+	else if(input < 0)
+		return -1;
+	else
+		return 0;
+}
 NAMESPACE_CLOSE();

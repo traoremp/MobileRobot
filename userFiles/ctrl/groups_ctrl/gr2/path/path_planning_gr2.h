@@ -16,6 +16,8 @@
 #define CELL_SIZE		50
 #define COORDS			2
 
+#define ROBOT_SIZE		130.0/CELL_SIZE
+
 //end position i,j of top left, bot left, top right, bot right little walls
 #define TL_WALL_i		650/CELL_SIZE  
 #define TL_WALL_j		500/CELL_SIZE 	

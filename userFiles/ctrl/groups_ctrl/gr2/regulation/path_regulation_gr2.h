@@ -10,10 +10,20 @@
 #include "CtrlStruct_gr2.h"
 
 // Constantes
-#define COORDS			2
-#define I				0
-#define J				1
-#define GOAL			2
+#define COORDS				2
+#define I					0
+#define J					1
+#define GOAL				2
+
+
+#define DIST_THRESHOLD		20 	//threshold for repulsive field
+#define K_ATT 				0.1
+#define	K_REP				600
+#define	F_ATT_MAX			30
+#define	F_ATT_MIN			12
+#define	F_REP_MAX			50
+#define ROT_SPEED 			1.8 //constante used for forcetocommand to specify the rotation speed 
+#define V_MAX				30 //vitesse angulaire max des roues
 
 NAMESPACE_INIT(ctrlGr2);
 

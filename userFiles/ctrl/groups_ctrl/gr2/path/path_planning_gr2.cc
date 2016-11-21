@@ -92,7 +92,7 @@ PathPlanning* init_path_planning()
 			std::cout << path->map[i][j] << ",";
 	std::cout << std::endl;
 	}
-	
+
 	// ----- path-planning initialization end ----- //
 
 	// return structure initialized
