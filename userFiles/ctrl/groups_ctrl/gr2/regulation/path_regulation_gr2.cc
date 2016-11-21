@@ -11,21 +11,9 @@ NAMESPACE_INIT(ctrlGr2);
  * \param[in,out] cvs controller main structure
  */
 void follow_path(CtrlStruct *cvs)
-{
-	//variables used for potential field algorithm
-	
-	/*int distanceThreshold = 20; //threshold for repulsive field
-	float k_att = 0.1;
-	int k_rep = 600;
-	int F_att_max = 30;
-	int F_att_min = 12;
-	int F_rep_max = 50;*/
+{	
 	int rob_pos[COORDS];
 	int goal_pos[COORDS] = {0,0};
-	
-	//float rot_speed = 1.8; //constante used for forcetocommand to specify the rotation speed 
-
-	//int v_max = 30; //vitesse angulaire max des roues
 	
 	//attractive and repulsive forces
 	float F_att[COORDS];
@@ -42,6 +30,8 @@ void follow_path(CtrlStruct *cvs)
 	cvs->path->map[goal_pos[I]][goal_pos[J]] = GOAL;
 	rob_pos[I] = cvs->rob_pos->y*-1000-1500;
 	rob_pos[J] = cvs->rob_pos->x*1000-1000;
+	
+	// --- Potential Field algorithm (start) --- //
 	
 	F_att[I] = -K_ATT*(rob_pos[I]-goal_pos[I]);
 	F_att[J] = -K_ATT*(rob_pos[J]-goal_pos[J]);
@@ -94,7 +84,36 @@ void follow_path(CtrlStruct *cvs)
 
     F_tot[I] = F_att[I] + F_rep[I];
 	F_tot[J] = F_att[J] + F_rep[J];
-
+	
+	// --- Potential Field algorithm (end) --- //
+	
+	// --- Force to motors command transformation (sart) --- //
+	
+	// --- Force to motors command transformation (end) --- //
 }
 
+//set the command to motors by transforming the vector F_tot
+void ForceToCommand(float F[], CtrlStruct *cvs)
+{
+	float w[COORDS] = {0,0};
+	
+    if (F[I] || F[J])
+	{
+        vecteur_pos_rob = [cos(rob_theta) sin(rob_theta)];
+
+        alpha = acos((F*vecteur_pos_rob')/(norm(F)*norm(vecteur_pos_rob)));
+        %limite angle -pi/pi
+        while (alpha>=pi) alpha = alpha-2*pi; end
+        while (alpha>=pi) alpha = alpha-2*pi; end
+        
+        //sign of the angle 
+        alpha = sign(det([vecteur_pos_rob' F']))*alpha;
+
+        ampl = norm_dist(F[I], F[J]);
+
+        wl = ampl - rot_speed*alpha/pi*ampl;
+        wr = ampl + rot_speed*alpha/pi*ampl;
+    }
+
+}
 NAMESPACE_CLOSE();
