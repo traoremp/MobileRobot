@@ -102,16 +102,14 @@ void controller_loop(CtrlStruct *cvs)
 	{
 		// calibration
 		case CALIB_STATE:
-			//calibration(cvs);
-			cvs->main_state = RUN_STATE;
-			cvs->strat->main_state = GAME_STATE_A;
+			calibration(cvs);
 			break;
 
 		// wait before match beginning
 		case WAIT_INIT_STATE:
 			//speed_regulation(cvs, 0.0, 0.0);
 		
-			if (t > 0.0)
+			if (t > -10.0) //t>0.0
 			{
 				cvs->main_state = RUN_STATE;
 				cvs->strat->main_state = GAME_STATE_A;
