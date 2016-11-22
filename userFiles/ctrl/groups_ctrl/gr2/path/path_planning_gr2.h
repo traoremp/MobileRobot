@@ -23,7 +23,7 @@
 #define TL_WALL_i		650/CELL_SIZE  
 #define TL_WALL_j		500/CELL_SIZE 	
 
-#define BL_WALL_i		2350/CELL_SIZE
+#define BL_WALL_i		(2350-CELL_SIZE)/CELL_SIZE
 #define BL_WALL_j		500/CELL_SIZE
 
 #define TR_WALL_i		500/CELL_SIZE
@@ -35,24 +35,24 @@
 //segment position i,j of the center obstacle
 
 //top segment
-#define TL_SEG_i		1100/CELL_SIZE
+#define TL_SEG_i		(1100-CELL_SIZE)/CELL_SIZE
 #define TL_SEG_j		800/CELL_SIZE
 
-#define TR_SEG_i		1100/CELL_SIZE
+#define TR_SEG_i		(1100-CELL_SIZE)/CELL_SIZE
 #define TR_SEG_j		1200/CELL_SIZE
 
 //bot segement
-#define BL_SEG_i		1900/CELL_SIZE
+#define BL_SEG_i		(1900-CELL_SIZE)/CELL_SIZE
 #define BL_SEG_j		800/CELL_SIZE
 
-#define BR_SEG_i		1900/CELL_SIZE
+#define BR_SEG_i		(1900-CELL_SIZE)/CELL_SIZE
 #define BR_SEG_j		1200/CELL_SIZE
 
 //center segment
-#define CL_SEG_i		1400/CELL_SIZE
+#define CL_SEG_i		(1400-CELL_SIZE)/CELL_SIZE
 #define CL_SEG_j		500/CELL_SIZE
 
-#define CR_SEG_i		1400/CELL_SIZE
+#define CR_SEG_i		(1400-CELL_SIZE)/CELL_SIZE
 #define CR_SEG_j		800/CELL_SIZE
 
 
