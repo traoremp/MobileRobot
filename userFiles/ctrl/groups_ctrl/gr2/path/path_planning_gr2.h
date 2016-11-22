@@ -63,6 +63,8 @@ struct PathPlanning
 {
 	int map[MAP_LENGTH][MAP_WIDTH]; //array of the map with position of elements we need (obstacles, goal,...)
 	int goal_pos[COORDS]; // position of the goal
+	float last_t;
+	bool wait;
 };
 
 PathPlanning* init_path_planning();

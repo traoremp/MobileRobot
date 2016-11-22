@@ -23,6 +23,8 @@ PathPlanning* init_path_planning()
 	int i;
 	int j;
 
+	path->wait = 0;//OFF
+
 	// ---initialisation of the array map---
 	for(i = 0; i<MAP_LENGTH; i++)
 		for(j = 0; j<MAP_WIDTH; j++)

@@ -28,6 +28,9 @@ void follow_path(CtrlStruct *cvs)
 	int d_min = 0;
 	float alpha;
 	float alpha_rel;
+	float t;
+
+	t = cvs->inputs->t;
 	
 	cvs->path->map[cvs->path->goal_pos[I]][cvs->path->goal_pos[J]] = GOAL;
 	rob_pos[I] = (int)((1500 - cvs->rob_pos->y*1000)/CELL_SIZE);
@@ -95,9 +98,24 @@ void follow_path(CtrlStruct *cvs)
 	F_tot[I] = F_att[I] +F_rep[I];
 	F_tot[J] = F_att[J] +F_rep[J];
 
-	if (norm_dist(F_att[I], F_att[J]) == 0) //Goal reached
+	if (norm_dist(rob_pos[I] - cvs->path->goal_pos[I], rob_pos[J] - cvs->path->goal_pos[J]) < 1 && !cvs->path->wait) //Goal reached
 	{
-		cvs->strat->main_state = GAME_STATE_B;
+		cvs->path->last_t = t;
+		cvs->path->wait = 1;
+		F_tot[I] = 0;
+		F_tot[J] = 0;
+		
+	}
+	else if (norm_dist(rob_pos[I] - cvs->path->goal_pos[I], rob_pos[J] - cvs->path->goal_pos[J]) < 1 && cvs->path->wait)
+	{
+		F_tot[I] = 0;
+		F_tot[J] = 0;
+
+		if (t - cvs->path->last_t > 2)
+		{
+			cvs->path->wait = 0;
+			cvs->strat->main_state = GAME_STATE_B;
+		}
 	}
 
 	
