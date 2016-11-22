@@ -87,8 +87,8 @@ PathPlanning* init_path_planning()
 		for(j = TL_SEG_j; j<TL_SEG_j + SEG_WIDTH; j++)
 			path->map[i][j] = 1;
 	
-	for (i = TR_SEG_i; i<BR_SEG_i; i++)
-			path->map[i][TR_SEG_j] = 1;
+	//for (i = TR_SEG_i; i<BR_SEG_i; i++)
+	//		path->map[i][TR_SEG_j] = 1;
 
 	//affichage
 	for(i = 0; i<MAP_LENGTH; i++)

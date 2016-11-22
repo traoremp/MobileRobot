@@ -16,7 +16,7 @@
 #define GOAL				2
 
 
-#define DIST_THRESHOLD		3 	//threshold for repulsive field
+#define DIST_THRESHOLD		6 	//threshold for repulsive field
 #define K_ATT 				0.1
 #define	K_REP				200
 #define	F_ATT_MAX			20

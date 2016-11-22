@@ -114,7 +114,7 @@ void follow_path(CtrlStruct *cvs)
 		if (t - cvs->path->last_t > 2)
 		{
 			cvs->path->wait = 0;
-			cvs->strat->main_state = GAME_STATE_B;
+			cvs->strat->main_state += 1;//next startegy state
 		}
 	}
 
