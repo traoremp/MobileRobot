@@ -14,6 +14,7 @@
 #define MAP_LENGTH		60
 #define MAP_WIDTH		40
 #define CELL_SIZE		50
+#define SEG_WIDTH		100/CELL_SIZE //width of segments
 #define COORDS			2
 
 #define ROBOT_SIZE		130.0/CELL_SIZE
@@ -32,8 +33,6 @@
 #define BR_WALL_j		1500/CELL_SIZE
 
 //segment position i,j of the center obstacle
-
-#define SEG_WIDTH			2 //width of segments
 
 //top segment
 #define TL_SEG_i		1100/CELL_SIZE

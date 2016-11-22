@@ -14,7 +14,7 @@ NAMESPACE_INIT(ctrlGr2);
 void follow_path(CtrlStruct *cvs)
 {	
 	int rob_pos[COORDS];
-	int goal_pos[COORDS] = {20,30};
+	int goal_pos[COORDS] = {40,30};
 	
 	//attractive and repulsive forces
 	float F_att[COORDS] = { 0,0 };
@@ -38,29 +38,41 @@ void follow_path(CtrlStruct *cvs)
 	F_att[I] = -K_ATT*(rob_pos[I]-goal_pos[I]);
 	F_att[J] = -K_ATT*(rob_pos[J]-goal_pos[J]);
 
-	std::cout << "norme: " << norm_dist(F_att[I], F_att[J]) << std::endl;
+	std::cout << "F_AV" << F_att[I] << ",";
+	std::cout <<  F_att[J] << std::endl;
 
 	//limit F_att
 	if (F_att[J])
+	{
 		ref_angle = atan(F_att[I] / F_att[J]);
+		if (F_att[J] < 0 && F_att[I]>0)
+			ref_angle += M_PI;
+		else if (F_att[J]<0 && F_att[I]<0)
+			ref_angle += -M_PI;
+	}
 	else
-		ref_angle = M_PI / 2;
+	{
+		if(F_att[I]>0)
+			ref_angle = M_PI / 2;
+		if(F_att[J]<0)
+			ref_angle = -M_PI / 2;
+	}
+
 
 	if (norm_dist(F_att[I],F_att[J]) > F_ATT_MAX)
 	{
-		//F_att[I] = F_att[I]-sign(F_att[I]);
-		//F_att[J] = F_att[J]-sign(F_att[J]);
 		F_att[I] = F_ATT_MAX * sin(ref_angle);
 		F_att[J] = F_ATT_MAX * cos(ref_angle);
 	}
-	/*
-	if (norm_dist(F_att[I],F_att[J]) < F_ATT_MIN)
+	
+	if (norm_dist(F_att[I],F_att[J]) < F_ATT_MIN && norm_dist(F_att[I], F_att[J]) != 0)
 	{
-		//F_att[I] = F_att[I]+sign(F_att[I]);
-		//F_att[J] = F_att[J]+sign(F_att[J]);
 		F_att[I] = F_ATT_MIN * sin(ref_angle);
 		F_att[J] = F_ATT_MIN * cos(ref_angle);
-	}*/
+	}
+
+	std::cout << "F_AP" << F_att[I] << ",";
+	std::cout << F_att[J] << std::endl;
 	
 	//get closest obstacle distance and angle
 	/*while (found == 0 && d_min <= DIST_THRESHOLD) // tant qu'on a pas trouvé d'obstacle et que la zone de recherche est < threshold
@@ -125,31 +137,22 @@ void ForceToCommand(float F[], CtrlStruct *cvs)
         vecteur_pos_rob[I] = cos(cvs->rob_pos->theta + M_PI/2);
         vecteur_pos_rob[J] = sin(cvs->rob_pos->theta + M_PI/2);
 
-		if ((norm_dist(F[I], F[J])*norm_dist(vecteur_pos_rob[I], vecteur_pos_rob[J])) == 0)
+		if (abs((F[I] * vecteur_pos_rob[I] + F[J] * vecteur_pos_rob[J]) / (norm_dist(F[I], F[J])*norm_dist(vecteur_pos_rob[I], vecteur_pos_rob[J]))) > 1)
 		{
-			std::cout << "norm(F): " << norm_dist(F[I], F[J]) << std::endl;
-			std::cout << "norm(pos): " << norm_dist(vecteur_pos_rob[I], vecteur_pos_rob[J]) << std::endl;
-			std::cout << "F(I): " << F[I] << std::endl;
-			std::cout << "F(j): " << F[J] << std::endl;
-			std::cout << "pos(I): " << vecteur_pos_rob[I] << std::endl;
-			std::cout << "POS(J): " << vecteur_pos_rob[J] << std::endl;
+			alpha = 0;
 		}
-
-        alpha = acos((F[I]*vecteur_pos_rob[I]+F[J]*vecteur_pos_rob[J])/(norm_dist(F[I],F[J])*norm_dist(vecteur_pos_rob[I],vecteur_pos_rob[J])));
-        //alpha = acos((F*vecteur_pos_rob')/(norm(F)*norm(vecteur_pos_rob)));
-
+		else
+		{
+			alpha = acos((F[I] * vecteur_pos_rob[I] + F[J] * vecteur_pos_rob[J]) / (norm_dist(F[I], F[J])*norm_dist(vecteur_pos_rob[I], vecteur_pos_rob[J])));
+		}
+	
         //limite angle -pi/pi
         alpha = limit_angle(alpha);
-
-		//std::cout << "angleAV: " << alpha << std::endl;
-        
+		       
         //sign of the angle 
-		//alpha = sign(det([vecteur_pos_rob' F']))*alpha;
 		alpha = sign(Det2X2Matrix(vecteur_pos_rob, F))*alpha;
 
-		//std::cout << "angleAP: " << alpha << std::endl;
-
-        ampl = norm_dist(F[I], F[J]);
+		ampl = norm_dist(F[I], F[J]);
 
         wl = ampl - ROT_SPEED*alpha/M_PI*ampl;
         wr = ampl + ROT_SPEED*alpha/M_PI*ampl;
