@@ -14,6 +14,7 @@
 #include <map>
 #include <set>
 #include <list>
+#include <stack>
 #include <Eigen/Dense>
 
 
@@ -34,11 +35,25 @@ class Obstacle{
 class TreeNode{
 	public:
 		TreeNode(Map_Element pos):position_(pos){};
-		void add_child(std::unique_ptr<std::pair<int, std::shared_ptr<TreeNode>>>);
+		/*TreeNode(TreeNode&& node) {
+			auto& children = node.getChildren();
+			for(auto& it = children.begin(); it != children.end(); it++){
+				children_.push_back(std::make_unique<std::pair<double, std::shared_ptr<TreeNode>>>(**it));
+			}
+			position_ = node.getPosition();
+		};*/
+		TreeNode(TreeNode&& node) = default;
+		TreeNode(const TreeNode& node) = default;
+		
+		
+		void add_child(std::shared_ptr<std::pair<double, std::shared_ptr<TreeNode>>>);
 		inline Map_Element getPosition() { return position_; };
+		inline std::vector<std::shared_ptr<std::pair<double, std::shared_ptr<TreeNode>>>>& getChildren() { return children_; }
+		inline Map_Element getPosition() const { return position_; };
+		inline const std::vector<std::shared_ptr<std::pair<double, std::shared_ptr<TreeNode>>>>& getChildren() const { return children_; }
 	private:
 		//std::unique_ptr<TreeNode> parent_;
-		std::vector<std::unique_ptr<std::pair<int, std::shared_ptr<TreeNode>>>> children_;
+		std::vector<std::shared_ptr<std::pair<double, std::shared_ptr<TreeNode>>>> children_;
 		Map_Element position_;
 };
 class PathTree{
@@ -48,20 +63,31 @@ class PathTree{
 			root_ = root;
 			target_Node_ = destination;
 		}
-
+		inline std::shared_ptr<TreeNode> getRoot() { return root_; }
+		inline std::shared_ptr<TreeNode> getTarget() { return target_Node_; }
 	private:
-		std::shared_ptr<TreeNode> root_;
-		std::shared_ptr<TreeNode> target_Node_;
+		/*static*/ std::shared_ptr<TreeNode> root_;
+		/*static*/ std::shared_ptr<TreeNode> target_Node_;
 };
 /// path-planning main structure
 struct PathPlanning
 {
+	void AStar();
+	void find_shortest_path();
+	void update_fringe(std::pair<double, std::shared_ptr<TreeNode>> next);
+	std::pair<double, std::shared_ptr<TreeNode>> find_smallest_in_fringe();
+	//void update_weights();
+	void update_weights(std::shared_ptr<TreeNode> node);
+	void fill_fringe(std::shared_ptr<TreeNode> node);
 	void init_tree(Map_Element rob_pos, Map_Element destination);
 	bool isConnectable( Map_Element, Map_Element);
 
+	std::unique_ptr<std::vector< std::vector<double>>> obstacles_coordinates_;
 	std::unique_ptr<std::vector<std::shared_ptr<TreeNode>>> vertices_;
 	std::unique_ptr<std::vector<Obstacle>> obstacles_;
 	std::unique_ptr<PathTree> tree_;
+	std::unique_ptr<std::list<Map_Element>> shortest_path;
+	std::list<std::unique_ptr<std::pair<double, std::shared_ptr<TreeNode>>>> fringe_;
 	//int dummy_variable; ///< put your own variable, this is just an example without purpose
 };
 

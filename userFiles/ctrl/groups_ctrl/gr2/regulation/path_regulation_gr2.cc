@@ -12,6 +12,35 @@ NAMESPACE_INIT(ctrlGr2);
 void follow_path(CtrlStruct *cvs)
 {
 	PathPlanning* path = cvs->path;
+	Map_Element start = Map_Element(cvs->rob_pos->x, cvs->triang_pos->y);
+	Map_Element goal = Map_Element(0.7, -0.6);
+	path->init_tree(start, goal);
+	path->AStar();
+	Map_Element rob_pos;
+	Map_Element vector;
+	double k = 0;
+	while (!path->shortest_path->empty()) {
+		rob_pos = Map_Element(cvs->rob_pos->x, cvs->triang_pos->y);
+		//double k; //Valeur qui satisfait l'equation
+		//double vector_x, vector_y;
+		////double angle_in_positive_range = (rob_theta < 0 ? rob_theta + 2*M_PI : rob_theta);
+		//vector_x = cos(rob_theta);
+		//vector_y = sin(rob_theta);
+
+		//k = (opp_x - rob_x) / vector_x;
+		//return (rob_y + k * vector_y == opp_y && k > 0);
+		Map_Element node = path->shortest_path->front();
+		vector = Map_Element(cos(cvs->rob_pos->theta), sin(cvs->rob_pos->theta));
+		k = (node[0] - rob_pos[0] )/ vector[0];
+		while (!(rob_pos[1]+ k * vector[1]== node[1] && k > 0))
+		{
+			speed_regulation(cvs, -10.0, 10.0);
+		}
+		speed_regulation(cvs,10.0,10.0);
+		path->shortest_path->pop_front();
+			
+	}
+
 }
 
 NAMESPACE_CLOSE();

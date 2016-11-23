@@ -13,6 +13,7 @@
 #include "calibration_gr2.h"
 #include "triangulation_gr2.h"
 #include "strategy_gr2.h"
+#include "path_regulation_gr2.h"
 
 #include "user_realtime.h" //set_plot
 
@@ -109,23 +110,24 @@ void controller_loop(CtrlStruct *cvs)
 		case WAIT_INIT_STATE:
 			//speed_regulation(cvs, 0.0, 0.0);
 		
-			if (t > 0.0)
-			{
-				//cvs->main_state = RUN_STATE;
-				//cvs->strat->main_state = GAME_STATE_A;
+			// if (t > 0.0)
+			// {
+			// 	//cvs->main_state = RUN_STATE;
+			// 	//cvs->strat->main_state = GAME_STATE_A;
 				
-				// triangulation
-				triangulation(cvs);
-				if (t < 16.0 )
-					t > 10.0 ? speed_regulation(cvs, 10, 10) : speed_regulation(cvs, 0.0, 0.0);
-				else if (t >= 16.0 && !(cvs->rob_pos->theta + 0.2 >= M_PI))
-					speed_regulation(cvs, -10, 10);
-				else
-					speed_regulation(cvs, 10, 10);
+			// 	// triangulation
+			// 	triangulation(cvs);
+			// 	if (t < 16.0 )
+			// 		t > 10.0 ? speed_regulation(cvs, 10, 10) : speed_regulation(cvs, 0.0, 0.0);
+			// 	else if (t >= 16.0 && !(cvs->rob_pos->theta + 0.2 >= M_PI))
+			// 		speed_regulation(cvs, -10, 10);
+			// 	else
+			// 		speed_regulation(cvs, 10, 10);
 
-			}
-			else
-				speed_regulation(cvs, 0.0, 0.0);
+			// }
+			// else
+			// 	speed_regulation(cvs, 0.0, 0.0);
+			follow_path(cvs);
 			break;
 
 		// during game
