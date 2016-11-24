@@ -34,6 +34,7 @@ class Obstacle{
 };
 class TreeNode{
 	public:
+		std::vector<std::shared_ptr<TreeNode>> parents_;
 		TreeNode(Map_Element pos):position_(pos){};
 		/*TreeNode(TreeNode&& node) {
 			auto& children = node.getChildren();
@@ -52,7 +53,7 @@ class TreeNode{
 		inline Map_Element getPosition() const { return position_; };
 		inline const std::vector<std::shared_ptr<std::pair<double, std::shared_ptr<TreeNode>>>>& getChildren() const { return children_; }
 	private:
-		//std::unique_ptr<TreeNode> parent_;
+		
 		std::vector<std::shared_ptr<std::pair<double, std::shared_ptr<TreeNode>>>> children_;
 		Map_Element position_;
 };
@@ -76,8 +77,8 @@ struct PathPlanning
 	void find_shortest_path();
 	void update_fringe(std::pair<double, std::shared_ptr<TreeNode>> next);
 	std::pair<double, std::shared_ptr<TreeNode>> find_smallest_in_fringe();
-	//void update_weights();
 	void update_weights(std::shared_ptr<TreeNode> node);
+	void update_weights(std::vector<std::shared_ptr<std::pair<double, std::shared_ptr<TreeNode>>>>::iterator & it);
 	void fill_fringe(std::shared_ptr<TreeNode> node);
 	void init_tree(Map_Element rob_pos, Map_Element destination);
 	bool isConnectable( Map_Element, Map_Element);

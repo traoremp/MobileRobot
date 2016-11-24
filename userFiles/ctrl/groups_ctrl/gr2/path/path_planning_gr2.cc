@@ -5,7 +5,7 @@
 #include <math.h>
 #include <algorithm>
 #include <limits>
-
+#include <intrin.h>
 NAMESPACE_INIT(ctrlGr2);
 
 
@@ -13,7 +13,7 @@ Obstacle::Obstacle(std::list<std::shared_ptr<Map_Element>> points){
 	points_ = std::move(points);
 }
 void TreeNode::add_child(std::shared_ptr<std::pair<double, std::shared_ptr<TreeNode>>> vertex) {
-	children_.emplace_back(std::move(vertex));
+	children_.emplace_back(vertex);
 }
 
 /*! \brief initialize the path-planning algorithm (memory allocated)
@@ -27,18 +27,18 @@ PathPlanning* init_path_planning()
 	// memory allocation
 	path = new PathPlanning();
 	std::vector<double> centre_obstacle = std::vector<double>{
-		0.04,	0.16,
-		0.34,	0.16,
-		0.34,	0.54,
-		-0.34,	0.54,
-		-0.34,	0.24,
-		-0.64,	0.24,
 		-0.64,	-0.24,
-		-0.34,	-0.24,
-		-0.34,	-0.54,
+		-0.64,	0.24,
+		-0.34,	0.24,
+		-0.34,	0.54,
+		0.34,	0.54,
+		0.34,	0.44,
+		-0.24,	0.44,
+		-0.24,	-0.44,
+		0.34,	-0.44,
 		0.34,	-0.54,
-		0.34,	-0.16,
-		0.04,	-0.16
+		-0.34,	-0.54,
+		-0.34,	-0.24
 	};
 
 	std::vector<double> wall_1 = std::vector<double>{
@@ -106,7 +106,6 @@ void PathPlanning::AStar()
 	fringe_.emplace_back(std::make_unique<std::pair<double, std::shared_ptr<TreeNode>>>(root_fringe));
 	fringe_.emplace_back(std::make_unique<std::pair<double, std::shared_ptr<TreeNode>>>(destination_fringe));
 	fill_fringe(root);//fonction recursive
-	update_weights(root);//AStar
 	find_shortest_path();
 
 }
@@ -115,15 +114,16 @@ void PathPlanning::find_shortest_path() {
 	shortest_path = std::make_unique<std::list<Map_Element>>();
 	while (!fringe_.empty() && next.second != tree_->getTarget()) {
 		next = find_smallest_in_fringe();
+		update_weights(next.second);
 		update_fringe(next);
 		shortest_path->emplace_back(next.second->getPosition());
 
 	}
+	return;
 }
 void PathPlanning::update_fringe(std::pair<double, std::shared_ptr<TreeNode>> next) {
 	std::shared_ptr<TreeNode> next_node = next.second;
 	for (auto& it_next_node = next_node->getChildren().begin(); it_next_node != next_node->getChildren().end();it_next_node++){
-		
 		for (auto& it_fringe = fringe_.begin(); it_fringe != fringe_.end(); it_fringe++){
 			if ((*it_next_node)->second == (*it_fringe)->second) {
 				(*it_fringe)->first = next.first + (*it_next_node)->first;
@@ -133,37 +133,25 @@ void PathPlanning::update_fringe(std::pair<double, std::shared_ptr<TreeNode>> ne
 }
 std::pair<double, std::shared_ptr<TreeNode>> PathPlanning::find_smallest_in_fringe() {
 	std::pair<double, std::shared_ptr<TreeNode>> smallest_distance;
-	double distance = -1.0;
-	std::list<std::unique_ptr<std::pair<double, std::shared_ptr<TreeNode>>>>::iterator& it_to_smallest = std::list<std::unique_ptr<std::pair<double, std::shared_ptr<TreeNode>>>>::iterator();
-	for (auto& it = fringe_.begin();  it != fringe_.end(); it++)
-	{
-		
+	double distance = std::numeric_limits<double>::max();
+	std::list<std::unique_ptr<std::pair<double, std::shared_ptr<TreeNode>>>>::iterator it_to_smallest = std::list<std::unique_ptr<std::pair<double, std::shared_ptr<TreeNode>>>>::iterator();
+	for (auto it = fringe_.begin();  it != fringe_.end(); it++)
+	{		
 		if ((*it)->first < distance) {
 			smallest_distance = (**it);
 			it_to_smallest = it;
+			distance = (*it)->first;
 		}
 
 	};
 	fringe_.erase(it_to_smallest);
 	return smallest_distance;
 }
-//void PathPlanning::update_weights(){
-//	auto start = tree_->getRoot();
-//	auto destination = tree_->getTarget();
-//
-//	/*std::shared_ptr<TreeNode> Astar_root = std::make_shared<TreeNode> (*start);
-//	std::shared_ptr<TreeNode> Astar_destination = std::make_shared<TreeNode>(*destination);
-//	PathTree Astar_path = PathTree(Astar_root, Astar_destination);*/
-//	
-//	update_weights(start);//recursive function
-//}
 void PathPlanning::update_weights(std::shared_ptr<TreeNode> node) {
 	for(auto& it = node->getChildren().begin(); it != node->getChildren().end(); it++){
-		//(*it)->first = (*it)->first + (tree_->getTarget()->getPosition() - (*it)->second->getPosition()).norm() - (tree_->getTarget()->getPosition() - node->getPosition()).norm();
-		if ((*it)->second->getPosition() == tree_->getTarget()->getPosition() || (*it)->second->getPosition() == tree_->getRoot()->getPosition())
-			return;
-		update_weights((*it)->second);
+		(*it)->first = (*it)->first + (tree_->getTarget()->getPosition() - (*it)->second->getPosition()).norm() - (tree_->getTarget()->getPosition() - node->getPosition()).norm();	
 	}
+
 }
 void PathPlanning::fill_fringe(std::shared_ptr<TreeNode> node){
 	
@@ -205,18 +193,20 @@ void PathPlanning::init_tree(Map_Element rob_pos, Map_Element destination) {
 	vertices_->emplace_back(std::make_shared<TreeNode>(Map_Element(0.91, 1.41)));
 	vertices_->emplace_back(std::make_shared<TreeNode>(Map_Element(-0.91, -1.41 )));
 	vertices_->emplace_back(std::make_shared<TreeNode>(Map_Element(0.91, -1.41)));
-	vertices_->emplace_back(std::make_shared<TreeNode>(destination));
+	vertices_->emplace_back(destination_node);
 	std::for_each(vertices_->begin(), vertices_->end(), [&](std::shared_ptr<TreeNode> nodeA) {
 		if (nodeA->getPosition() == destination)
 			return;
 		std::for_each(vertices_->begin(), vertices_->end(), [&](std::shared_ptr<TreeNode> nodeB) {			
 			Map_Element pointA = nodeA->getPosition();
 			Map_Element pointB = nodeB->getPosition();
+			//if (pointB == destination) __debugbreak();
 			if (PathPlanning::isConnectable(pointA, pointB)) {
 				std::shared_ptr<std::pair<double, std::shared_ptr<TreeNode>>> node = std::make_shared<std::pair<double, std::shared_ptr<TreeNode>>>();
 				node->first = (pointB - pointA).norm();
 				node->second = nodeB;
 				nodeA->add_child(node);
+				//nodeB->parents_.emplace_back(nodeA);
 			}
 			
 			
@@ -229,29 +219,32 @@ bool PathPlanning::isConnectable( Map_Element OA, Map_Element OB)
 {
 	double angle;
 	const int k = 20; // subdiviser le segment reliant A et B et tester 400points differents de la liaison pour detecter une eventuelle collision
-	Map_Element vec_AB = OB - OA;
+	Map_Element vec_AB = OB.matrix() - OA.matrix();
 	if (vec_AB.norm() == 0)
 		return false;
 	vec_AB /= k;
 	for (int i = 1; i <= k; i++) {
-		Map_Element point_to_test = (OA + i * vec_AB);
+		Map_Element point_to_test = (OA.matrix() + i * vec_AB.matrix());
 		for (auto& obstacle : *this->obstacles_) {
 			angle = 0;
 			std::list<std::shared_ptr<Map_Element>>& points = obstacle.getPoints();
-			std::list<std::shared_ptr<Map_Element>>::iterator& it = points.begin();
-			std::list<std::shared_ptr<Map_Element>>::iterator& previous_it = it;
+			std::list<std::shared_ptr<Map_Element>>::iterator it = points.begin();
+			std::list<std::shared_ptr<Map_Element>>::iterator previous_it = it;
 			while( ++it != points.end()) {				
-				Map_Element vec_1 = *(previous_it)->get() - point_to_test;
-				Map_Element vec_2 = *(it)->get() - point_to_test;
-				angle += std::acos((vec_1.dot(vec_2))/(vec_1.norm() * vec_2.norm()));
+				Map_Element vec_1 = (*previous_it)->matrix() - point_to_test.matrix();
+				vec_1.normalize();
+				Map_Element vec_2 = (*it)->matrix() - point_to_test.matrix();
+				vec_2.normalize();
+				angle += std::acos(vec_1.dot(vec_2));
 				previous_it = it;
 				
 			}
-			previous_it = it;
 			it = points.begin();
-			Map_Element vec_1 = *(previous_it)->get() - point_to_test;
-			Map_Element vec_2 = *(it)->get() - point_to_test;
-			angle += std::acos((vec_1.dot(vec_2)) / (vec_1.norm() * vec_2.norm()));
+			Map_Element vec_1 = (*previous_it)->matrix() - point_to_test.matrix();
+			vec_1.normalize();
+			Map_Element vec_2 = (*it)->matrix() - point_to_test.matrix();
+			vec_2.normalize();
+			angle += std::acos(vec_1.dot(vec_2));
 			if ((std::ceil(angle*100)/100 == std::ceil(2 * M_PI*100)/100))
 				return false;	
 		}
