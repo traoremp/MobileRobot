@@ -112,8 +112,9 @@ void PathPlanning::AStar()
 void PathPlanning::find_shortest_path() {
 	std::pair<double, std::shared_ptr<TreeNode>> next;
 	shortest_path = std::make_unique<std::list<Map_Element>>();
-	while (!fringe_.empty() && next.second != tree_->getTarget()) {
+	while (next.second != tree_->getTarget()) {
 		next = find_smallest_in_fringe();
+		//if (next.second->getPosition() == Map_Element(0.34, 0.86)) __debugbreak();
 		update_weights(next.second);
 		update_fringe(next);
 		shortest_path->emplace_back(next.second->getPosition());
@@ -200,7 +201,9 @@ void PathPlanning::init_tree(Map_Element rob_pos, Map_Element destination) {
 		std::for_each(vertices_->begin(), vertices_->end(), [&](std::shared_ptr<TreeNode> nodeB) {			
 			Map_Element pointA = nodeA->getPosition();
 			Map_Element pointB = nodeB->getPosition();
-			//if (pointB == destination) __debugbreak();
+			if ( pointB == rob_pos)
+				return;
+			//if (pointB == Map_Element(0.34, 0.86) && pointA == Map_Element(0.64, 0.86)) __debugbreak();
 			if (PathPlanning::isConnectable(pointA, pointB)) {
 				std::shared_ptr<std::pair<double, std::shared_ptr<TreeNode>>> node = std::make_shared<std::pair<double, std::shared_ptr<TreeNode>>>();
 				node->first = (pointB - pointA).norm();
@@ -218,7 +221,7 @@ void PathPlanning::init_tree(Map_Element rob_pos, Map_Element destination) {
 bool PathPlanning::isConnectable( Map_Element OA, Map_Element OB)
 {
 	double angle;
-	const int k = 20; // subdiviser le segment reliant A et B et tester 400points differents de la liaison pour detecter une eventuelle collision
+	const int k = 50; // subdiviser le segment reliant A et B et tester 400points differents de la liaison pour detecter une eventuelle collision
 	Map_Element vec_AB = OB.matrix() - OA.matrix();
 	if (vec_AB.norm() == 0)
 		return false;
@@ -235,7 +238,9 @@ bool PathPlanning::isConnectable( Map_Element OA, Map_Element OB)
 				vec_1.normalize();
 				Map_Element vec_2 = (*it)->matrix() - point_to_test.matrix();
 				vec_2.normalize();
-				angle += std::acos(vec_1.dot(vec_2));
+				double angle_between = std::acos(vec_1.dot(vec_2));
+				if((std::ceil(angle_between * 100) / 100 != std::ceil(M_PI * 100) / 100))
+					angle += angle_between;
 				previous_it = it;
 				
 			}
@@ -244,7 +249,9 @@ bool PathPlanning::isConnectable( Map_Element OA, Map_Element OB)
 			vec_1.normalize();
 			Map_Element vec_2 = (*it)->matrix() - point_to_test.matrix();
 			vec_2.normalize();
-			angle += std::acos(vec_1.dot(vec_2));
+			double angle_between = std::acos(vec_1.dot(vec_2));
+			if ((std::ceil(angle_between * 100) / 100 != std::ceil(M_PI * 100) / 100))
+				angle += angle_between;
 			if ((std::ceil(angle*100)/100 == std::ceil(2 * M_PI*100)/100))
 				return false;	
 		}
