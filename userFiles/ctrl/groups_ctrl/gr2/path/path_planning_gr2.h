@@ -78,7 +78,7 @@ struct PathPlanning
 	void update_fringe(std::pair<double, std::shared_ptr<TreeNode>> next);
 	std::pair<double, std::shared_ptr<TreeNode>> find_smallest_in_fringe();
 	void update_weights(std::shared_ptr<TreeNode> node);
-	void update_weights(std::vector<std::shared_ptr<std::pair<double, std::shared_ptr<TreeNode>>>>::iterator & it);
+	//void update_weights(std::vector<std::shared_ptr<std::pair<double, std::shared_ptr<TreeNode>>>>::iterator & it);
 	void fill_fringe(std::shared_ptr<TreeNode> node);
 	void init_tree(Map_Element rob_pos, Map_Element destination);
 	bool isConnectable( Map_Element, Map_Element);
