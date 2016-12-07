@@ -40,15 +40,27 @@ void main_strategy(CtrlStruct *cvs)
 	// variables declaration
 	Strategy *strat;
 	CtrlIn *inputs;
+	static int init;
+	PathPlanning* path;
+	Map_Element start;
+	Map_Element goal;
 
 	// variables initialization
 	strat  = cvs->strat;
 	inputs = cvs->inputs;
+	path = cvs->path;
+	start = Map_Element(cvs->rob_pos->x, cvs->rob_pos->y);
 
 	switch (strat->main_state)
 	{
 		case GAME_STATE_A:
-			speed_regulation(cvs, 0.0, 0.0);
+			goal = Map_Element(-0.8, 0.0);
+			if (!init) {
+				init = 1;
+				path->init_tree(start, goal);
+				path->AStar();
+			}
+			follow_path(cvs);	
 			break;
 
 		case GAME_STATE_B:

@@ -70,6 +70,7 @@ void controller_loop(CtrlStruct *cvs)
 	double t;
 	CtrlIn *inputs;
 	CtrlOut *outputs;
+	PathPlanning* path = cvs->path;
 
 	// variables initialization
 	inputs  = cvs->inputs;
@@ -93,12 +94,12 @@ void controller_loop(CtrlStruct *cvs)
 	//set_plot(inputs->r_wheel_speed, "R_w_in[rad/s]");
 	//set_plot(inputs->l_wheel_speed, "L_w_in[rad/s]");
 
-	/*set_plot(cvs->rob_pos->x, "x_odo[m]");
-	set_plot(cvs->rob_pos->y, "y_odo[m]");
-	set_plot(cvs->rob_pos->theta, "theta_odo[rad]");*/
-	set_plot(cvs->triang_pos->x, "x_tri[m]");
+	//set_plot(cvs->rob_pos->x, "x_odo[m]");
+	//set_plot(cvs->rob_pos->y, "y_odo[m]");
+	set_plot(cvs->rob_pos->theta, "theta_odo[rad]");
+	/*set_plot(cvs->triang_pos->x, "x_tri[m]");
 	set_plot(cvs->triang_pos->y, "y_tri[m]");
-	set_plot(cvs->triang_pos->theta, "theta_tri[rad]");
+	set_plot(cvs->triang_pos->theta, "theta_tri[rad]");*/
 	switch (cvs->main_state)
 	{
 		// calibration
@@ -127,11 +128,12 @@ void controller_loop(CtrlStruct *cvs)
 			// }
 			// else
 			// 	speed_regulation(cvs, 0.0, 0.0);
-			follow_path(cvs);
+			cvs->main_state = RUN_STATE;
 			break;
 
 		// during game
 		case RUN_STATE:
+			cvs->strat->main_state = GAME_STATE_A;
 			main_strategy(cvs);
 
 			if (t > 89.0) // 1 second safety
