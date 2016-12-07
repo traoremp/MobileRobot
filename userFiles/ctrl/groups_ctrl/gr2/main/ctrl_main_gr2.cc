@@ -14,7 +14,8 @@
 #include "triangulation_gr2.h"
 #include "strategy_gr2.h"
 #include "path_regulation_gr2.h"
-
+#include "path_planning_gr2.h"
+#include <thread> 
 #include "user_realtime.h" //set_plot
 
 
@@ -70,7 +71,8 @@ void controller_loop(CtrlStruct *cvs)
 	double t;
 	CtrlIn *inputs;
 	CtrlOut *outputs;
-
+	static bool thread_created = false;
+	static std::thread path_init;
 	// variables initialization
 	inputs  = cvs->inputs;
 	outputs = cvs->outputs;
@@ -104,6 +106,10 @@ void controller_loop(CtrlStruct *cvs)
 		// calibration
 		case CALIB_STATE:
 			calibration(cvs);
+			if (!thread_created) {
+				path_init = std::thread(&PathPlanning::init_tree, cvs->path);
+				thread_created = true;
+			}				
 			break;
 
 		// wait before match beginning
@@ -127,7 +133,9 @@ void controller_loop(CtrlStruct *cvs)
 			// }
 			// else
 			// 	speed_regulation(cvs, 0.0, 0.0);
+			path_init.join();
 			follow_path(cvs);
+			
 			break;
 
 		// during game

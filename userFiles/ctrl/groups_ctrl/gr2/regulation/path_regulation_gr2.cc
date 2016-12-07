@@ -14,8 +14,8 @@ void follow_path(CtrlStruct *cvs)
 	PathPlanning* path = cvs->path;
 	Map_Element start = Map_Element(cvs->rob_pos->x, cvs->rob_pos->y);
 	Map_Element goal = Map_Element(-0.8, 0.0);
-	path->init_tree(start, goal);
-	path->AStar();
+	//path->init_tree();
+	path->AStar(start, goal);
 	Map_Element rob_pos;
 	Map_Element vector;
 	double k = 0;

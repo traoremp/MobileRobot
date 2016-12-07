@@ -65,12 +65,14 @@ class PathTree{
 /// path-planning main structure
 struct PathPlanning
 {
-	void AStar();
+	void AStar(Map_Element rob_pos, Map_Element destination);
+	void add_root_in_tree(std::shared_ptr<TreeNode> nodeA);
+	void add_destination_in_tree(std::shared_ptr<TreeNode> nodeB);
 	void find_shortest_path();
 	void update_fringe(std::pair<double, std::shared_ptr<TreeNode>> next);
 	std::pair<double, std::shared_ptr<TreeNode>> find_smallest_in_fringe();
-	void update_weights(std::shared_ptr<TreeNode> node);
-	void init_tree(Map_Element rob_pos, Map_Element destination);
+	void update_weights(std::pair<double, std::shared_ptr<TreeNode>> next);
+	void init_tree();
 	bool isConnectable( Map_Element, Map_Element);
 
 	std::unique_ptr<std::vector< std::vector<double>>> obstacles_coordinates_;
