@@ -1,8 +1,8 @@
-/*! 
- * \author Group 2
- * \file controller_main_gr2.cc
- * \brief Initialization, loop and finilization of the controller written in C (but compiled as C++)
- */
+/*!
+* \author Group 2
+* \file controller_main_gr2.cc
+* \brief Initialization, loop and finilization of the controller written in C (but compiled as C++)
+*/
 
 #include "ctrl_main_gr2.h"
 #include "namespace_ctrl.h"
@@ -22,9 +22,9 @@
 NAMESPACE_INIT(ctrlGr2);
 
 /*! \brief initialize controller operations (called once)
- * 
- * \param[in] cvs controller main structure
- */
+*
+* \param[in] cvs controller main structure
+*/
 void controller_init(CtrlStruct *cvs)
 {
 	// variables declaration
@@ -40,14 +40,14 @@ void controller_init(CtrlStruct *cvs)
 	// robot team
 	switch (inputs->robot_id)
 	{
-		case ROBOT_B: cvs->team_id = TEAM_A; break;
-		case ROBOT_R: cvs->team_id = TEAM_A; break;
-		case ROBOT_Y: cvs->team_id = TEAM_B; break;
-		case ROBOT_W: cvs->team_id = TEAM_B; break;
-	
-		default:
-			printf("Error: unknown robot ID: %d !\n", inputs->robot_id);
-			exit(EXIT_FAILURE);
+	case ROBOT_B: cvs->team_id = TEAM_A; break;
+	case ROBOT_R: cvs->team_id = TEAM_A; break;
+	case ROBOT_Y: cvs->team_id = TEAM_B; break;
+	case ROBOT_W: cvs->team_id = TEAM_B; break;
+
+	default:
+		printf("Error: unknown robot ID: %d !\n", inputs->robot_id);
+		exit(EXIT_FAILURE);
 	}
 
 	// number of opponents
@@ -62,9 +62,9 @@ void controller_init(CtrlStruct *cvs)
 }
 
 /*! \brief controller loop (called every time-step)
- * 
- * \param[in] cvs controller main structure
- */
+*
+* \param[in] cvs controller main structure
+*/
 void controller_loop(CtrlStruct *cvs)
 {
 	// variables declaration
@@ -73,9 +73,10 @@ void controller_loop(CtrlStruct *cvs)
 	CtrlOut *outputs;
 	PathPlanning* path = cvs->path;
 	static bool thread_created = false;
+	static bool thread_join = false;
 	static std::thread path_init;
 	// variables initialization
-	inputs  = cvs->inputs;
+	inputs = cvs->inputs;
 	outputs = cvs->outputs;
 
 	// time
@@ -105,72 +106,76 @@ void controller_loop(CtrlStruct *cvs)
 	switch (cvs->main_state)
 	{
 		// calibration
-		case CALIB_STATE:
-			calibration(cvs);
-			if (!thread_created) {
-				path_init = std::thread(&PathPlanning::init_tree, cvs->path);
-				thread_created = true;
-			}				
-			break;
+	case CALIB_STATE:
+		calibration(cvs);
+		if (!thread_created) {
+			path_init = std::thread(&PathPlanning::init_tree, cvs->path);
+			thread_created = true;
+		}
+		break;
 
 		// wait before match beginning
-		case WAIT_INIT_STATE:
-			//speed_regulation(cvs, 0.0, 0.0);
-		
-			// if (t > 0.0)
-			// {
-			// 	//cvs->main_state = RUN_STATE;
-			// 	//cvs->strat->main_state = GAME_STATE_A;
-				
-			// 	// triangulation
-			// 	triangulation(cvs);
-			// 	if (t < 16.0 )
-			// 		t > 10.0 ? speed_regulation(cvs, 10, 10) : speed_regulation(cvs, 0.0, 0.0);
-			// 	else if (t >= 16.0 && !(cvs->rob_pos->theta + 0.2 >= M_PI))
-			// 		speed_regulation(cvs, -10, 10);
-			// 	else
-			// 		speed_regulation(cvs, 10, 10);
+	case WAIT_INIT_STATE:
+		//speed_regulation(cvs, 0.0, 0.0);
 
-			// }
-			// else
-			// 	speed_regulation(cvs, 0.0, 0.0);
-			cvs->main_state = RUN_STATE;
-			cvs->strat->main_state = GAME_STATE_A;
+		// if (t > 0.0)
+		// {
+		// 	//cvs->main_state = RUN_STATE;
+		// 	//cvs->strat->main_state = GAME_STATE_A;
+
+		// 	// triangulation
+		// 	triangulation(cvs);
+		// 	if (t < 16.0 )
+		// 		t > 10.0 ? speed_regulation(cvs, 10, 10) : speed_regulation(cvs, 0.0, 0.0);
+		// 	else if (t >= 16.0 && !(cvs->rob_pos->theta + 0.2 >= M_PI))
+		// 		speed_regulation(cvs, -10, 10);
+		// 	else
+		// 		speed_regulation(cvs, 10, 10);
+
+		// }
+		// else
+		// 	speed_regulation(cvs, 0.0, 0.0);
+		cvs->main_state = RUN_STATE;
+		cvs->strat->main_state = GAME_STATE_A;
+		if (!thread_join) {
 			path_init.join();
-			break;
+			thread_join = true;
+		}
+		
+		break;
 
 		// during game
-		case RUN_STATE:
-			main_strategy(cvs);
+	case RUN_STATE:
+		main_strategy(cvs);
 
-			if (t > 89.0) // 1 second safety
-			{
-				cvs->main_state = STOP_END_STATE;
-			}
-			break;
+		if (t > 89.0) // 1 second safety
+		{
+			cvs->main_state = STOP_END_STATE;
+		}
+		break;
 
 		// stop at the end of the game
-		case STOP_END_STATE:
-			speed_regulation(cvs, 0.0, 0.0);
+	case STOP_END_STATE:
+		speed_regulation(cvs, 0.0, 0.0);
 
-			outputs->flag_release = 1;
-			break;
+		outputs->flag_release = 1;
+		break;
 
-		case NB_MAIN_STATES:
-			printf("Error: state NB_MAIN_STATES should not be reached !\n");
-			exit(EXIT_FAILURE);
-			break;
-	
-		default:
-			printf("Error:unknown state : %d !\n", cvs->main_state);
-			exit(EXIT_FAILURE);
+	case NB_MAIN_STATES:
+		printf("Error: state NB_MAIN_STATES should not be reached !\n");
+		exit(EXIT_FAILURE);
+		break;
+
+	default:
+		printf("Error:unknown state : %d !\n", cvs->main_state);
+		exit(EXIT_FAILURE);
 	}
 }
 
 /*! \brief last controller operations (called once)
- * 
- * \param[in] cvs controller main structure
- */
+*
+* \param[in] cvs controller main structure
+*/
 void controller_finish(CtrlStruct *cvs)
 {
 
