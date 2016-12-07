@@ -85,7 +85,7 @@ void controller_loop(CtrlStruct *cvs)
 	update_odometry(cvs);
 
 	// triangulation
-	//triangulation(cvs);
+	triangulation(cvs);
 
 	// opponents position
 	opponents_tower(cvs);
@@ -98,10 +98,10 @@ void controller_loop(CtrlStruct *cvs)
 
 	//set_plot(cvs->rob_pos->x, "x_odo[m]");
 	//set_plot(cvs->rob_pos->y, "y_odo[m]");
-	set_plot(cvs->rob_pos->theta, "theta_odo[rad]");
-	/*set_plot(cvs->triang_pos->x, "x_tri[m]");
+	//set_plot(cvs->rob_pos->theta, "theta_odo[rad]");
+	set_plot(cvs->triang_pos->x, "x_tri[m]");
 	set_plot(cvs->triang_pos->y, "y_tri[m]");
-	set_plot(cvs->triang_pos->theta, "theta_tri[rad]");*/
+	set_plot(cvs->triang_pos->theta, "theta_tri[rad]");
 	switch (cvs->main_state)
 	{
 		// calibration

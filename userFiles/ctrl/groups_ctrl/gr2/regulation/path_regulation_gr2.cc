@@ -20,31 +20,33 @@ void follow_path(CtrlStruct *cvs)
 	double y = cvs->rob_pos->y;
 	double theta = cvs->rob_pos->theta;
 	static int forward;
+	int ratio = 100;
 
 	if (!path->shortest_path->empty()) {
 		Map_Element node = path->shortest_path->front();
+		double dist = (node[0] - x) *(node[0] - x) + (node[1] - y)*(node[1] - y) ;
 
 		theta_goal = -1 * atan2((node[0] - x), (node[1] - y)) + M_PI_2;
 		theta_goal = limit_angle(theta_goal);
-		set_plot(theta_goal, "theta_goal[rad]");
-		set_plot(forward, "forward");
+		//set_plot(theta_goal, "theta_goal[rad]");
+		//set_plot(forward, "forward");
 
 		if (((theta_goal - theta < 0.02) && (theta_goal - theta > -0.02)) || ((theta - theta_goal < 0.02) && (theta - theta_goal > 0.02)) && !forward)
 		{
 			forward = 1;
-			speed_regulation(cvs, 20, 20);
+			speed_regulation(cvs, 25, 25);
 		}
 		else if ((theta_goal < theta) && forward == 0)
-			speed_regulation(cvs, -20, 20);
+			speed_regulation(cvs, -25, 25);
 		else if ((theta_goal > theta) && forward == 0)
-			speed_regulation(cvs, 20, -20);
+			speed_regulation(cvs, 25, -25);
 
 
 		//printf("%f %f %f %f %f %f\n", node[0], node[1], x, y, theta_goal, theta);
 
-		if (((node[0] - x < 0.02 && node[0] - x > -0.02) || (x - node[0] < 0.02 && x - node[0] > -0.02))
+		if (((node[0] - x < 0.04 && node[0] - x > -0.04) || (x - node[0] < 0.04 && x - node[0] > -0.04))
 			&&
-			((node[1] - y < 0.02 && node[1] - y > -0.02) || (y - node[1] < 0.02 && y - node[1] > -0.02)))
+			((node[1] - y < 0.04 && node[1] - y > -0.04) || (y - node[1] < 0.04 && y - node[1] > -0.04)))
 		{
 			path->shortest_path->pop_front();
 			forward = 0;
