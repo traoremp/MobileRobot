@@ -11,15 +11,14 @@
 
 // Constantes
 #define COORDS				2
-#define I					0
-#define J					1
-#define GOAL				2
+#define X					0
+#define Y					1
 
 
 #define DIST_THRESHOLD		6 	//threshold for repulsive field
 #define K_ATT 				0.1
 #define	K_REP				200
-#define	F_ATT_MAX			20
+#define	F_ATT_MAX			40
 #define	F_ATT_MIN			10
 #define	F_REP_MAX			60
 #define ROT_SPEED 			1.8 //constante used for forcetocommand to specify the rotation speed 
@@ -28,7 +27,7 @@
 NAMESPACE_INIT(ctrlGr2);
 
 void follow_path(CtrlStruct *cvs);
-void ForceToCommand(float F[], CtrlStruct *cvs);
+//void ForceToCommand(float F[], CtrlStruct *cvs);
 void limitNorm(float F[], int maxNorm, int minNorm);
 
 NAMESPACE_CLOSE();

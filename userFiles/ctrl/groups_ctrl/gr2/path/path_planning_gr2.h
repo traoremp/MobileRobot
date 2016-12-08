@@ -10,50 +10,92 @@
 #include "namespace_ctrl.h"
 #include "CtrlStruct_gr2.h"
 
-//number of cells (length and width) of the map (2000x3000 mm) so their size are 50x50 mm
-#define MAP_LENGTH		60
-#define MAP_WIDTH		40
-#define CELL_SIZE		50
-#define SEG_WIDTH		100/CELL_SIZE //width of segments
+//number of rectangles in the map (2000x3000 mm) and their four specifications (width,length, coord x,y of center)
+#define NB_RECT			12
+#define SPEC			4
 #define COORDS			2
+#define WIDTH			20
+//#define ROBOT_SIZE		260
 
-#define ROBOT_SIZE		130.0/CELL_SIZE
+// --- Rectangles of map boundary --- //
 
-//end position i,j of top left, bot left, top right, bot right little walls
-#define TL_WALL_i		650/CELL_SIZE  
-#define TL_WALL_j		500/CELL_SIZE 	
+//top wall
+#define BT_WIDTH		20					//width of rectangle 
+#define BT_LENGTH		2000				//length of rectangle
+#define BT_CENTER_X		0					//x coord of center
+#define BT_CENTER_Y		1500+WIDTH/2		//y coord of center
 
-#define BL_WALL_i		(2350-CELL_SIZE)/CELL_SIZE
-#define BL_WALL_j		500/CELL_SIZE
+//right wall
+#define BR_WIDTH		3000
+#define BR_LENGTH		20
+#define BR_CENTER_X		1000+WIDTH/2
+#define BR_CENTER_Y		0
 
-#define TR_WALL_i		500/CELL_SIZE
-#define TR_WALL_j		1500/CELL_SIZE
+//boT wall
+#define BB_WIDTH		20
+#define BB_LENGTH		2000
+#define BB_CENTER_X		0
+#define BB_CENTER_Y		-1500-WIDTH/2
 
-#define BR_WALL_i		2500/CELL_SIZE
-#define BR_WALL_j		1500/CELL_SIZE
+//left wall
+#define BL_WIDTH		3000
+#define BL_LENGTH		20
+#define BL_CENTER_X		-1000-WIDTH/2
+#define BL_CENTER_Y		0
 
-//segment position i,j of the center obstacle
+// --- Rectangles of horizontal walls --- //
 
-//top segment
-#define TL_SEG_i		(1100-CELL_SIZE)/CELL_SIZE
-#define TL_SEG_j		800/CELL_SIZE
+//top wall
+#define HT_WIDTH		20
+#define HT_LENGTH		500
+#define HT_CENTER_X		-500-HT_LENGTH/2
+#define HT_CENTER_Y		840
 
-#define TR_SEG_i		(1100-CELL_SIZE)/CELL_SIZE
-#define TR_SEG_j		1200/CELL_SIZE
+//bot wall
+#define HB_WIDTH		20
+#define HB_LENGTH		500
+#define HB_CENTER_X		-500-HB_LENGTH/2
+#define HB_CENTER_Y		-840
 
-//bot segement
-#define BL_SEG_i		(1900-CELL_SIZE)/CELL_SIZE
-#define BL_SEG_j		800/CELL_SIZE
+// --- Rectangles of vertical walls --- //
 
-#define BR_SEG_i		(1900-CELL_SIZE)/CELL_SIZE
-#define BR_SEG_j		1200/CELL_SIZE
+//top wall
+#define VT_WIDTH		500
+#define VT_LENGTH		20
+#define VT_CENTER_X		490
+#define VT_CENTER_Y		1250
 
-//center segment
-#define CL_SEG_i		(1400-CELL_SIZE)/CELL_SIZE
-#define CL_SEG_j		500/CELL_SIZE
+//bot wall
+#define VB_WIDTH		500
+#define VB_LENGTH		20
+#define VB_CENTER_X		490
+#define VB_CENTER_Y		-1250
 
-#define CR_SEG_i		(1400-CELL_SIZE)/CELL_SIZE
-#define CR_SEG_j		800/CELL_SIZE
+// --- Four rectangles of center obstacle --- //
+
+//top
+#define CT_WIDTH		100
+#define CT_LENGTH		400
+#define CT_CENTER_X		0
+#define CT_CENTER_Y		350
+
+//bot
+#define CB_WIDTH		100
+#define CB_LENGTH		400
+#define CB_CENTER_X		0
+#define CB_CENTER_Y		-350
+
+//betwin
+#define CBE_WIDTH		600
+#define CBE_LENGTH		100
+#define CBE_CENTER_X	-150
+#define CBE_CENTER_Y	0
+
+//center
+#define CC_WIDTH		200
+#define CC_LENGTH		300
+#define CC_CENTER_X		-350
+#define CC_CENTER_Y		0
 
 
 NAMESPACE_INIT(ctrlGr2);
@@ -61,7 +103,14 @@ NAMESPACE_INIT(ctrlGr2);
 /// path-planning main structure
 struct PathPlanning
 {
-	int map[MAP_LENGTH][MAP_WIDTH]; //array of the map with position of elements we need (obstacles, goal,...)
+	//array of the map with position of rectangles which forms obstacles
+	int map[NB_RECT][SPEC] = { { BT_WIDTH ,BT_LENGTH ,BT_CENTER_X ,BT_CENTER_Y },{ BR_WIDTH ,BR_LENGTH ,BR_CENTER_X ,BR_CENTER_Y },
+								{ BB_WIDTH ,BB_LENGTH ,BB_CENTER_X ,BB_CENTER_Y },{ BL_WIDTH ,BL_LENGTH ,BL_CENTER_X ,BL_CENTER_Y },
+								{ HT_WIDTH , HT_LENGTH ,HT_CENTER_X ,HT_CENTER_Y },{ HB_WIDTH ,HB_LENGTH ,HB_CENTER_X ,HB_CENTER_Y },
+								{ VT_WIDTH ,VT_LENGTH ,VT_CENTER_X ,VT_CENTER_Y },{ VB_WIDTH ,VB_LENGTH ,VB_CENTER_X ,VB_CENTER_Y },
+								{ CT_WIDTH ,CT_LENGTH ,CT_CENTER_X ,CT_CENTER_Y },{ CB_WIDTH ,CB_LENGTH ,CB_CENTER_X ,CB_CENTER_Y },
+								{ CBE_WIDTH ,CBE_LENGTH ,CBE_CENTER_X ,CBE_CENTER_Y },{ CC_WIDTH ,CC_LENGTH ,CC_CENTER_X ,CC_CENTER_Y } };
+	
 	int goal_pos[COORDS]; // position of the goal
 	float last_t;
 	bool wait;

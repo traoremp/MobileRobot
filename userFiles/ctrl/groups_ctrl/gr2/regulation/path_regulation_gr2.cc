@@ -13,15 +13,18 @@ NAMESPACE_INIT(ctrlGr2);
  * \param[in,out] cvs controller main structure
  */
 void follow_path(CtrlStruct *cvs)
-{	
-	int rob_pos[COORDS];
-		
+{		
 	//attractive and repulsive forces
-	float F_att[COORDS] = { 0,0 };
-	float F_rep[COORDS] = { 0,0 };
-	float F_tot[COORDS] = { 0,0 };
+	float F_att[COORDS];
+	float F_rep[COORDS];
+	float F_tot[COORDS];
 	int obst_pos[COORDS];
-	
+
+	int rob_posx;
+	int rob_posy;
+	int goal_posx;
+	int goal_posy;
+
 	int obstacle_dist = 0;
 	float obstacle_theta = 0;
 	int found = 0; 
@@ -31,23 +34,30 @@ void follow_path(CtrlStruct *cvs)
 	float t;
 
 	t = cvs->inputs->t;
+
+	rob_posx = cvs->rob_pos->x * 1000;
+	rob_posy = cvs->rob_pos->y * 1000;
 	
-	cvs->path->map[cvs->path->goal_pos[I]][cvs->path->goal_pos[J]] = GOAL;
-	rob_pos[I] = (int)((1500 - cvs->rob_pos->y*1000)/CELL_SIZE);
-	rob_pos[J] = (int)((1000 + cvs->rob_pos->x*1000)/CELL_SIZE);
-	
+	goal_posx = cvs->path->goal_pos[X];
+	goal_posy = cvs->path->goal_pos[Y];
+
 	// --- Potential Field algorithm (start) --- //
 	
-	F_att[I] = -K_ATT*(rob_pos[I]- cvs->path->goal_pos[I]);
-	F_att[J] = -K_ATT*(rob_pos[J]- cvs->path->goal_pos[J]);
+	F_att[X] = -K_ATT*(rob_posx - goal_posx);
+	F_att[Y] = -K_ATT*(rob_posy - goal_posy);
 
 	//limit F_att
-	limitNorm(F_att, F_ATT_MAX, F_ATT_MIN);
+	//limitNorm(F_att, F_ATT_MAX, F_ATT_MIN);
 
-
-	//std::cout << "F_att" << F_att[I] << ",";
-	//std::cout << F_att[J] << std::endl;
+	//std::cout << "F_att" << F_att[X] << ",";
+	//std::cout << F_att[Y] << std::endl;
 	
+	//get closest obstacle distance and angle
+	for (i = 0; i < NB_RECT; i++)
+	{
+		if ()
+	}
+	/*
 	//get closest obstacle distance and angle
 	while (found == 0 && d_min <= DIST_THRESHOLD) // tant qu'on a pas trouvé d'obstacle et que la zone de recherche est < threshold
 	{
@@ -94,7 +104,7 @@ void follow_path(CtrlStruct *cvs)
 	std::cout << F_rep[J] << std::endl;
 	std::cout << "obst_dist: " << obstacle_dist << ",";
 	std::cout << "obst_theta: " << obstacle_theta << std::endl;*/
-
+	/*
 	F_tot[I] = F_att[I] +F_rep[I];
 	F_tot[J] = F_att[J] +F_rep[J];
 
@@ -125,9 +135,9 @@ void follow_path(CtrlStruct *cvs)
 
 	ForceToCommand(F_tot, cvs);
 	
-	// --- Force to motors command transformation (end) --- //
+	// --- Force to motors command transformation (end) --- //*/
 }
-
+/*
 //set the command to motors by transforming the vector F_tot
 void ForceToCommand(float F[], CtrlStruct *cvs)
 {
@@ -172,39 +182,39 @@ void ForceToCommand(float F[], CtrlStruct *cvs)
 
    	speed_regulation(cvs, wr, wl);
 
-}
+}*/
 
 void limitNorm(float F[], int maxNorm, int minNorm)
 {
 	float ref_angle = M_PI / 2;
 
-	if (F[J])
+	if (F[Y])
 	{
-		ref_angle = atan(F[I] / F[J]);
-		if (F[J] < 0 && F[I]>0)
+		ref_angle = atan(F[X] / F[Y]);
+		if (F[Y] < 0 && F[X]>0)
 			ref_angle += M_PI;
-		else if (F[J]<0 && F[I]<0)
+		else if (F[Y]<0 && F[X]<0)
 			ref_angle += -M_PI;
 	}
 	else
 	{
-		if (F[I]>0)
+		if (F[X]>0)
 			ref_angle = M_PI / 2;
-		if (F[J]<0)
+		if (F[Y]<0)
 			ref_angle = -M_PI / 2;
 	}
 
 
-	if (norm_dist(F[I], F[J]) > maxNorm)
+	if (norm_dist(F[X], F[Y]) > maxNorm)
 	{
-		F[I] = maxNorm * sin(ref_angle);
-		F[J] = maxNorm * cos(ref_angle);
+		F[X] = maxNorm * sin(ref_angle);
+		F[Y] = maxNorm * cos(ref_angle);
 	}
 
-	if (norm_dist(F[I], F[J]) < minNorm && norm_dist(F[I], F[J]) != 0)
+	if (norm_dist(F[X], F[Y]) < minNorm && norm_dist(F[X], F[Y]) != 0)
 	{
-		F[I] = minNorm * sin(ref_angle);
-		F[J] = minNorm * cos(ref_angle);
+		F[X] = minNorm * sin(ref_angle);
+		F[Y] = minNorm * cos(ref_angle);
 	}
 }
 
