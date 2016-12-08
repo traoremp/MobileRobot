@@ -15,7 +15,7 @@
 #define SPEC			4
 #define COORDS			2
 #define WIDTH			20
-//#define ROBOT_SIZE		260
+#define ROBOT_SIZE		130
 
 // --- Rectangles of map boundary --- //
 

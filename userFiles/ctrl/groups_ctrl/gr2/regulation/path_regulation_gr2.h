@@ -15,19 +15,23 @@
 #define Y					1
 
 
-#define DIST_THRESHOLD		6 	//threshold for repulsive field
-#define K_ATT 				0.1
+#define DIST_THRESHOLD		200 	//threshold for repulsive field
+#define K_ATT 				0.02
 #define	K_REP				200
-#define	F_ATT_MAX			40
-#define	F_ATT_MIN			10
-#define	F_REP_MAX			60
-#define ROT_SPEED 			1.8 //constante used for forcetocommand to specify the rotation speed 
-#define V_MAX				30 //vitesse angulaire max des roues
+//#define	F_ATT_MAX			40
+//#define	F_ATT_MIN			10
+//#define	F_REP_MAX			60
+#define ROT_SPEED 			2.5 //constante used for forcetocommand to specify the rotation speed 
+#define OB_H	0
+#define OB_L	1
+#define OB_X	2
+#define OB_Y	3
+
 
 NAMESPACE_INIT(ctrlGr2);
 
 void follow_path(CtrlStruct *cvs);
-//void ForceToCommand(float F[], CtrlStruct *cvs);
+void ForceToCommand(float F[], CtrlStruct *cvs);
 void limitNorm(float F[], int maxNorm, int minNorm);
 
 NAMESPACE_CLOSE();
