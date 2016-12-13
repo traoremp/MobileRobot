@@ -91,9 +91,9 @@ int sign(float input)
 * \param[in] E1,E2: vector
 * \return det(a)
 */
-float Det2X2Matrix(float * E1, float * E2)
+double Det2X2Matrix(double * E1, double * E2)
 {
-	float det;
+	double det;
 
 	det = E1[0] * E2[1] - E1[1] * E2[0];
 	return det;

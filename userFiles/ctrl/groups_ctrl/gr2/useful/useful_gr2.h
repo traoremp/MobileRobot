@@ -17,7 +17,7 @@ double limit_range(double x, double min, double max);
 double limit_angle(double x);
 double first_order_filter(double last_val, double new_val, double tau, double delta_t);
 int sign(float input);
-float Det2X2Matrix(float * E1, float * E2);
+double Det2X2Matrix(double * E1, double * E2);
 
 NAMESPACE_CLOSE();
 

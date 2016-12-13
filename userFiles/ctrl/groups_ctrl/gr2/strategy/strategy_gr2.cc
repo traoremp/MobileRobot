@@ -48,22 +48,31 @@ void main_strategy(CtrlStruct *cvs)
 	switch (strat->main_state)
 	{
 		case GAME_STATE_A:
-			cvs->path->goal_pos[X] = 250;
-			cvs->path->goal_pos[Y] = -1250;
+			cvs->path->goal_pos[X] = -400;
+			cvs->path->goal_pos[Y] = 600;
 			follow_path(cvs);
 			//speed_regulation(cvs, 0.0, 0.0);
 			break;
 
 		case GAME_STATE_B:
-			speed_regulation(cvs, 0.0, 0.0);
+			cvs->path->goal_pos[X] = -800;
+			cvs->path->goal_pos[Y] = 0;
+			follow_path(cvs);
+			//speed_regulation(cvs, 0.0, 0.0);
 			break;
 
 		case GAME_STATE_C:
-			speed_regulation(cvs, 0.0, 0.0);
+			cvs->path->goal_pos[X] = -750;
+			cvs->path->goal_pos[Y] = -1200;
+			follow_path(cvs);
+			//speed_regulation(cvs, 0.0, 0.0);
 			break;
 
 		case GAME_STATE_D:
-			speed_regulation(cvs, 0.0, 0.0);
+			cvs->path->goal_pos[X] = -750;
+			cvs->path->goal_pos[Y] = -1200;
+			follow_path(cvs);
+			//speed_regulation(cvs, 0.0, 0.0);
 			break;
 
 		case GAME_STATE_E:

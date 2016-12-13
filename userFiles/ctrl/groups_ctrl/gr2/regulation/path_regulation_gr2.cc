@@ -15,9 +15,9 @@ NAMESPACE_INIT(ctrlGr2);
 void follow_path(CtrlStruct *cvs)
 {		
 	//attractive and repulsive forces
-	float F_att[COORDS];
-	float F_rep[COORDS];
-	float F_tot[COORDS];
+	double F_att[COORDS];
+	double F_rep[COORDS];
+	double F_tot[COORDS];
 	int obst_pos[COORDS];
 
 	int rob_posx;
@@ -25,11 +25,11 @@ void follow_path(CtrlStruct *cvs)
 	int goal_posx;
 	int goal_posy;
 
-	float obstacle_theta = 0;
+	double obstacle_theta = 0;
 	bool found = false; 
-	float alpha;
-	float alpha_rel;
-	float t;
+	double alpha;
+	double alpha_rel;
+	double t;
 
 
 	t = cvs->inputs->t;
@@ -61,38 +61,42 @@ void follow_path(CtrlStruct *cvs)
 	{
 		if (rob_posx<cvs->path->map[i][OB_X]- cvs->path->map[i][OB_L]/2 && rob_posy>cvs->path->map[i][OB_Y]+ cvs->path->map[i][OB_H]/2)
 		{
-
+			d_computed = sqrt( pow(cvs->path->map[i][OB_X] - cvs->path->map[i][OB_L] / 2 - rob_posx,2) + pow(rob_posy-cvs->path->map[i][OB_Y] - cvs->path->map[i][OB_H] / 2,2) ) - ROBOT_SIZE;
+			cas_nb = 1;
 		}
 		else if (rob_posx<cvs->path->map[i][OB_X] - cvs->path->map[i][OB_L] / 2 && rob_posy>cvs->path->map[i][OB_Y] - cvs->path->map[i][OB_H] / 2 && rob_posy<cvs->path->map[i][OB_Y] + cvs->path->map[i][OB_H] / 2)
 		{
-			d_computed = cvs->path->map[i][OB_X] - cvs->path->map[i][OB_L] / 2 - rob_posx - ROBOT_SIZE;
+			d_computed = abs(cvs->path->map[i][OB_X] - cvs->path->map[i][OB_L] / 2 - rob_posx - ROBOT_SIZE);
 			cas_nb = 2;
 		}
 		else if (rob_posx<cvs->path->map[i][OB_X] - cvs->path->map[i][OB_L] / 2 && rob_posy<cvs->path->map[i][OB_Y] - cvs->path->map[i][OB_H] / 2)
 		{
-
+			d_computed = sqrt(pow(cvs->path->map[i][OB_X]- cvs->path->map[i][OB_L] / 2-rob_posx, 2) + pow(cvs->path->map[i][OB_Y]- cvs->path->map[i][OB_H] / 2-rob_posy, 2)) - ROBOT_SIZE;
+			cas_nb = 3;
 		}
 		else if (rob_posx<cvs->path->map[i][OB_X] + cvs->path->map[i][OB_L] / 2 && rob_posx>cvs->path->map[i][OB_X] - cvs->path->map[i][OB_L] / 2 && rob_posy<cvs->path->map[i][OB_Y] - cvs->path->map[i][OB_H] / 2)
 		{
-			d_computed = cvs->path->map[i][OB_Y] - cvs->path->map[i][OB_H] / 2 - rob_posy - ROBOT_SIZE;
+			d_computed = abs(cvs->path->map[i][OB_Y] - cvs->path->map[i][OB_H] / 2 - rob_posy - ROBOT_SIZE);
 			cas_nb = 4;
 		}
 		else if (rob_posx>cvs->path->map[i][OB_X] + cvs->path->map[i][OB_L] / 2 && rob_posy<cvs->path->map[i][OB_Y] - cvs->path->map[i][OB_H] / 2)
 		{
-
+			d_computed = sqrt(pow(rob_posx- cvs->path->map[i][OB_X]- cvs->path->map[i][OB_L] / 2, 2) + pow(cvs->path->map[i][OB_Y] - cvs->path->map[i][OB_H] / 2 - rob_posy, 2)) - ROBOT_SIZE;
+			cas_nb = 5;
 		}
 		else if (rob_posx>cvs->path->map[i][OB_X] + cvs->path->map[i][OB_L] / 2 && rob_posy<cvs->path->map[i][OB_Y] + cvs->path->map[i][OB_H] / 2 && rob_posy>cvs->path->map[i][OB_Y] - cvs->path->map[i][OB_H] / 2)
 		{
-			d_computed = rob_posx - cvs->path->map[i][OB_X] - cvs->path->map[i][OB_L] / 2 - ROBOT_SIZE;
+			d_computed = abs(rob_posx - cvs->path->map[i][OB_X] - cvs->path->map[i][OB_L] / 2 - ROBOT_SIZE);
 			cas_nb = 6;
 		}
 		else if (rob_posx>cvs->path->map[i][OB_X] + cvs->path->map[i][OB_L] / 2 && rob_posy>cvs->path->map[i][OB_Y] + cvs->path->map[i][OB_H] / 2)
 		{
-
+			d_computed = sqrt(pow(rob_posx- cvs->path->map[i][OB_X] - cvs->path->map[i][OB_L] / 2, 2) + pow(rob_posy- cvs->path->map[i][OB_Y]- cvs->path->map[i][OB_H] / 2, 2)) - ROBOT_SIZE;
+			cas_nb = 7;
 		}
 		else if (rob_posx<cvs->path->map[i][OB_X] + cvs->path->map[i][OB_L] / 2 && rob_posx>cvs->path->map[i][OB_X] - cvs->path->map[i][OB_L] / 2 && rob_posy>cvs->path->map[i][OB_Y] + cvs->path->map[i][OB_H] / 2)
 		{
-			d_computed = rob_posy - cvs->path->map[i][OB_Y] - cvs->path->map[i][OB_H] / 2 - ROBOT_SIZE;
+			d_computed = abs(rob_posy - cvs->path->map[i][OB_Y] - cvs->path->map[i][OB_H] / 2 - ROBOT_SIZE);
 			cas_nb = 8;
 		}
 
@@ -105,21 +109,25 @@ void follow_path(CtrlStruct *cvs)
 	switch (ob_cas_nb)
 	{
 		case 1:
+			obstacle_theta = atan2(rob_posy- cvs->path->map[ob_number][OB_Y] - cvs->path->map[ob_number][OB_H] / 2, cvs->path->map[ob_number][OB_X] - cvs->path->map[ob_number][OB_L] / 2 - rob_posx);
 			break;
 		case 2:
 			obstacle_theta = 0;
 			break;
 		case 3:
+			obstacle_theta = atan2(cvs->path->map[ob_number][OB_Y] - cvs->path->map[ob_number][OB_H] / 2 - rob_posy, cvs->path->map[ob_number][OB_X] - cvs->path->map[ob_number][OB_L] / 2 - rob_posx);
 			break;
 		case 4:
 			obstacle_theta = M_PI / 2;
 			break;
 		case 5:
+			obstacle_theta = atan2(cvs->path->map[ob_number][OB_Y] - cvs->path->map[ob_number][OB_H] / 2 - rob_posy, cvs->path->map[ob_number][OB_X] + cvs->path->map[ob_number][OB_L] / 2 -rob_posx);
 			break;
 		case 6:
 			obstacle_theta = -M_PI;
 			break;
 		case 7:
+			obstacle_theta = atan2(cvs->path->map[ob_number][OB_Y] + cvs->path->map[ob_number][OB_H] / 2 - rob_posy, cvs->path->map[ob_number][OB_X] + cvs->path->map[ob_number][OB_L] / 2 - rob_posx);
 			break;
 		case 8:
 			obstacle_theta = -M_PI / 2;
@@ -127,73 +135,47 @@ void follow_path(CtrlStruct *cvs)
 		default:
 			break;
 	}
-	//obstacle_theta = atan2(cvs->path->map[ob_number][OB_Y]-rob_posy, cvs->path->map[ob_number][OB_X]-rob_posx);
-
-
-	/*
-	//get closest obstacle distance and angle
-	while (found == 0 && d_min <= DIST_THRESHOLD) // tant qu'on a pas trouvé d'obstacle et que la zone de recherche est < threshold
-	{
-		for (alpha = -M_PI / 2; alpha <= M_PI / 2; alpha = alpha + M_PI / 8) //check 10 direction around robot
-		{
-			alpha_rel = alpha + cvs->rob_pos->theta;
-			alpha_rel = limit_angle(alpha_rel);
-			if (rob_pos[I] + (int)((d_min + ROBOT_SIZE)*cos(alpha_rel)) < MAP_LENGTH && rob_pos[J] + (int)((d_min + ROBOT_SIZE)*sin(alpha_rel)) < MAP_WIDTH && rob_pos[I] + (int)((d_min + ROBOT_SIZE)*cos(alpha_rel)) > 0 && rob_pos[J] + (int)((d_min + ROBOT_SIZE)*sin(alpha_rel)) > 0)
-				if (cvs->path->map[rob_pos[I] - (int)((d_min + ROBOT_SIZE)*sin(alpha_rel))][rob_pos[J] + (int)((d_min + ROBOT_SIZE)*cos(alpha_rel))] == 1) // if obstacle
-				{
-					found = 1;
-					obstacle_theta = alpha_rel;
-					obstacle_dist = d_min;
-				}
-		}			
-		d_min = d_min +1;
-	}
-
-	
-	//if (obstacle_dist==0) // =collision
-		//obstacle_dist = 1; // avoid infinite repulsive force
-	
+				
 	if (obstacle_dist >= DIST_THRESHOLD || obstacle_dist == 0)
 	{
-		F_rep[I] = 0;
-		F_rep[J] = 0;
+		F_rep[X] = 0;
+		F_rep[Y] = 0;
 	}
 	else
 	{
-		obst_pos[I] = rob_pos[I]-round(obstacle_dist*sin(obstacle_theta));
-		obst_pos[J] = rob_pos[J]+round(obstacle_dist*cos(obstacle_theta));
+		obst_pos[X] = rob_posx+round(obstacle_dist*cos(obstacle_theta));
+		obst_pos[Y] = rob_posy+round(obstacle_dist*sin(obstacle_theta));
 		//F_rep[I] = -K_REP*(1/obstacle_dist)*sin(obstacle_theta);
 		//F_rep[J] = -K_REP*(1/obstacle_dist)*cos(obstacle_theta)
-		F_rep[I] = K_REP*(1.0 / obstacle_dist - 1.0 / DIST_THRESHOLD)*(rob_pos[I] - obst_pos[I]) /pow(obstacle_dist,3);
-		F_rep[J] = K_REP*(1.0 / obstacle_dist - 1.0 / DIST_THRESHOLD)*(rob_pos[J] - obst_pos[J]) / pow(obstacle_dist,3);
+		F_rep[X] = K_REP*(1.0 / obstacle_dist - 1.0 / DIST_THRESHOLD)*(rob_posx - obst_pos[X]) /pow(obstacle_dist,2);
+		F_rep[Y] = K_REP*(1.0 / obstacle_dist - 1.0 / DIST_THRESHOLD)*(rob_posy - obst_pos[Y]) / pow(obstacle_dist,2);
 
 	}
 
-	//limitNorm(F_rep, F_REP_MAX, 0);*/
 
-	//std::cout << "F_att: " << F_att[X] << ",";
-	//std::cout << F_att[Y] << std::endl;
-	//std::cout << "F_rep " << F_rep[X] << ",";
-	//std::cout << F_rep[Y] << std::endl;
+	/*std::cout << "F_att: " << F_att[X] << ",";
+	std::cout << F_att[Y] << std::endl;
+	std::cout << "F_rep " << F_rep[X] << ",";
+	std::cout << F_rep[Y] << std::endl;
 	std::cout << "obst_dist: " << obstacle_dist << ",";
 	std::cout << "obst_cas_nb: " << ob_cas_nb << ",";
-	std::cout << "obst_theta: " << obstacle_theta*360/(2*M_PI) << std::endl;
+	std::cout << "obst_theta: " << obstacle_theta << std::endl;*/
 	
-	F_tot[X] = F_att[X];// +F_rep[X];
-	F_tot[Y] = F_att[Y];// +F_rep[Y];
+	F_tot[X] = F_att[X] + F_rep[X];
+	F_tot[Y] = F_att[Y] + F_rep[Y];
 
-	/*if (norm_dist(rob_pos[I] - cvs->path->goal_pos[I], rob_pos[J] - cvs->path->goal_pos[J]) < 1 && !cvs->path->wait) //Goal reached
+	if (norm_dist(rob_posx - cvs->path->goal_pos[X], rob_posy - cvs->path->goal_pos[Y]) < 40 && !cvs->path->wait) //Goal reached
 	{
 		cvs->path->last_t = t;
 		cvs->path->wait = 1;
-		F_tot[I] = 0;
-		F_tot[J] = 0;
+		F_tot[X] = 0;
+		F_tot[Y] = 0;
 		
 	}
-	else if (norm_dist(rob_pos[I] - cvs->path->goal_pos[I], rob_pos[J] - cvs->path->goal_pos[J]) < 1 && cvs->path->wait)
+	else if (norm_dist(rob_posx - cvs->path->goal_pos[X], rob_posy - cvs->path->goal_pos[Y]) < 40 && cvs->path->wait)
 	{
-		F_tot[I] = 0;
-		F_tot[J] = 0;
+		F_tot[X] = 0;
+		F_tot[Y] = 0;
 
 		if (t - cvs->path->last_t > 2)
 		{
@@ -205,7 +187,7 @@ void follow_path(CtrlStruct *cvs)
 	
 	// --- Potential Field algorithm (end) --- //
 	
-	// --- Force to motors command transformation (sart) --- //*/
+	// --- Force to motors command transformation (sart) --- //
 
 	ForceToCommand(F_tot, cvs);
 	
@@ -213,40 +195,29 @@ void follow_path(CtrlStruct *cvs)
 }
 
 //set the command to motors by transforming the vector F_tot
-void ForceToCommand(float F[], CtrlStruct *cvs)
+void ForceToCommand(double F[], CtrlStruct *cvs)
 {
-	float wl =0;
-	float wr =0;
+	double wl =0;
+	double wr =0;
 
-	float vecteur_pos_rob[COORDS];
-	float alpha;
-	float ampl;
+	double vecteur_pos_rob[COORDS];
+	double alpha;
+	double ampl;
 	
     if (F[X] || F[Y])
 	{
         vecteur_pos_rob[X] = cos(cvs->rob_pos->theta);
         vecteur_pos_rob[Y] = sin(cvs->rob_pos->theta);
 
-		if (abs((F[X] * vecteur_pos_rob[X] + F[Y] * vecteur_pos_rob[Y]) / (norm_dist(F[X], F[Y])*norm_dist(vecteur_pos_rob[X], vecteur_pos_rob[Y]))) > 1)
-		{
-			alpha = 0;
-		}
-		else
-		{
-			alpha = acos((F[X] * vecteur_pos_rob[X] + F[Y] * vecteur_pos_rob[Y]) / (norm_dist(F[X], F[Y])*norm_dist(vecteur_pos_rob[X], vecteur_pos_rob[Y])));
-		}
-	
-        //limite angle -pi/pi
-        alpha = limit_angle(alpha);
-		       
-        //sign of the angle 
-		alpha = sign(Det2X2Matrix(vecteur_pos_rob, F))*alpha;
+		alpha = atan2(F[Y], F[X]) - cvs->rob_pos->theta;
+		alpha = limit_angle(alpha);
 
 		ampl = norm_dist(F[X], F[Y]);
 		ampl = ampl > 80 ? 80 : ampl ;
+		ampl = ampl < 10 ? 10 : ampl;
 
-        wl = ampl - ROT_SPEED*alpha/M_PI*ampl;
-        wr = ampl + ROT_SPEED*alpha/M_PI*ampl;
+        wl = ampl - 2*ROT_SPEED*alpha/M_PI*ampl;
+        wr = ampl + 2*ROT_SPEED*alpha/M_PI*ampl;
     }
     else
    	{
@@ -256,40 +227,6 @@ void ForceToCommand(float F[], CtrlStruct *cvs)
 
    	speed_regulation(cvs, wr, wl);
 
-}
-
-void limitNorm(float F[], int maxNorm, int minNorm)
-{
-	float ref_angle = M_PI / 2;
-
-	if (F[Y])
-	{
-		ref_angle = atan(F[X] / F[Y]);
-		if (F[Y] < 0 && F[X]>0)
-			ref_angle += M_PI;
-		else if (F[Y]<0 && F[X]<0)
-			ref_angle += -M_PI;
-	}
-	else
-	{
-		if (F[X]>0)
-			ref_angle = M_PI / 2;
-		if (F[Y]<0)
-			ref_angle = -M_PI / 2;
-	}
-
-
-	if (norm_dist(F[X], F[Y]) > maxNorm)
-	{
-		F[X] = maxNorm * sin(ref_angle);
-		F[Y] = maxNorm * cos(ref_angle);
-	}
-
-	if (norm_dist(F[X], F[Y]) < minNorm && norm_dist(F[X], F[Y]) != 0)
-	{
-		F[X] = minNorm * sin(ref_angle);
-		F[Y] = minNorm * cos(ref_angle);
-	}
 }
 
 NAMESPACE_CLOSE();

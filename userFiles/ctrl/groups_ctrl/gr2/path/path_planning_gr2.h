@@ -11,7 +11,7 @@
 #include "CtrlStruct_gr2.h"
 
 //number of rectangles in the map (2000x3000 mm) and their four specifications (width,length, coord x,y of center)
-#define NB_RECT			12
+#define NB_RECT			22
 #define SPEC			4
 #define COORDS			2
 #define WIDTH			20
@@ -97,6 +97,58 @@
 #define CC_CENTER_X		-350
 #define CC_CENTER_Y		0
 
+//virtual wall
+#define CV1_WIDTH		150
+#define CV1_LENGTH		150
+#define CV1_CENTER_X	-275
+#define CV1_CENTER_Y	175
+
+#define CV2_WIDTH		150
+#define CV2_LENGTH		150
+#define CV2_CENTER_X	-275
+#define CV2_CENTER_Y	-175
+
+#define BLV1_WIDTH		400
+#define BLV1_LENGTH		100
+#define BLV1_CENTER_X	-950
+#define BLV1_CENTER_Y	-600
+
+#define BLV2_WIDTH		300
+#define BLV2_LENGTH		100
+#define BLV2_CENTER_X	-850
+#define BLV2_CENTER_Y	-650
+
+#define BLV3_WIDTH		200
+#define BLV3_LENGTH		100
+#define BLV3_CENTER_X	-750
+#define BLV3_CENTER_Y	-700
+
+#define BLV4_WIDTH		100
+#define BLV4_LENGTH		100
+#define BLV4_CENTER_X	-650
+#define BLV4_CENTER_Y	-750
+
+
+#define TLV1_WIDTH		400
+#define TLV1_LENGTH		100
+#define TLV1_CENTER_X	-950
+#define TLV1_CENTER_Y	600
+
+#define TLV2_WIDTH		300
+#define TLV2_LENGTH		100
+#define TLV2_CENTER_X	-850
+#define TLV2_CENTER_Y	650
+
+#define TLV3_WIDTH		200
+#define TLV3_LENGTH		100
+#define TLV3_CENTER_X	-750
+#define TLV3_CENTER_Y	700
+
+#define TLV4_WIDTH		100
+#define TLV4_LENGTH		100
+#define TLV4_CENTER_X	-650
+#define TLV4_CENTER_Y	750
+
 
 NAMESPACE_INIT(ctrlGr2);
 
@@ -109,7 +161,12 @@ struct PathPlanning
 								{ HT_WIDTH , HT_LENGTH ,HT_CENTER_X ,HT_CENTER_Y },{ HB_WIDTH ,HB_LENGTH ,HB_CENTER_X ,HB_CENTER_Y },
 								{ VT_WIDTH ,VT_LENGTH ,VT_CENTER_X ,VT_CENTER_Y },{ VB_WIDTH ,VB_LENGTH ,VB_CENTER_X ,VB_CENTER_Y },
 								{ CT_WIDTH ,CT_LENGTH ,CT_CENTER_X ,CT_CENTER_Y },{ CB_WIDTH ,CB_LENGTH ,CB_CENTER_X ,CB_CENTER_Y },
-								{ CBE_WIDTH ,CBE_LENGTH ,CBE_CENTER_X ,CBE_CENTER_Y },{ CC_WIDTH ,CC_LENGTH ,CC_CENTER_X ,CC_CENTER_Y } };
+								{ CBE_WIDTH ,CBE_LENGTH ,CBE_CENTER_X ,CBE_CENTER_Y },{ CC_WIDTH ,CC_LENGTH ,CC_CENTER_X ,CC_CENTER_Y },
+								{ CV1_WIDTH ,CV1_LENGTH ,CV1_CENTER_X ,CV1_CENTER_Y },{ CV2_WIDTH ,CV2_LENGTH ,CV2_CENTER_X ,CV2_CENTER_Y },
+								{ BLV1_WIDTH ,BLV1_LENGTH ,BLV1_CENTER_X ,BLV1_CENTER_Y },{ BLV2_WIDTH ,BLV2_LENGTH ,BLV2_CENTER_X ,BLV2_CENTER_Y },
+								{ BLV3_WIDTH ,BLV3_LENGTH ,BLV3_CENTER_X ,BLV3_CENTER_Y },{ BLV4_WIDTH ,BLV4_LENGTH ,BLV4_CENTER_X ,BLV4_CENTER_Y },
+								{ TLV1_WIDTH ,TLV1_LENGTH ,TLV1_CENTER_X ,TLV1_CENTER_Y },{ TLV2_WIDTH ,TLV2_LENGTH ,TLV2_CENTER_X ,TLV2_CENTER_Y },
+								{ TLV3_WIDTH ,TLV3_LENGTH ,TLV3_CENTER_X ,TLV3_CENTER_Y },{ TLV4_WIDTH ,TLV4_LENGTH ,TLV4_CENTER_X ,TLV4_CENTER_Y } };
 	
 	int goal_pos[COORDS]; // position of the goal
 	float last_t;
