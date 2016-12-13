@@ -24,6 +24,7 @@ enum {GAME_STATE_A, GAME_STATE_B, GAME_STATE_C, GAME_STATE_D, GAME_STATE_E};
 Strategy* init_strategy();
 void free_strategy(Strategy *strat);
 void main_strategy(CtrlStruct *cvs);
+void goToBase(CtrlStruct *cvs);
 
 NAMESPACE_CLOSE();
 

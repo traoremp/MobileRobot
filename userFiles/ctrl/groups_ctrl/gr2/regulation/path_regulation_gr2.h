@@ -15,9 +15,9 @@
 #define Y					1
 
 
-#define DIST_THRESHOLD		100 	//threshold for repulsive field
-#define K_ATT 				0.03
-#define	K_REP				200000
+#define DIST_THRESHOLD		130 	//threshold for repulsive field
+#define K_ATT 				0.02
+#define	K_REP				250000
 //#define	F_ATT_MAX			40
 //#define	F_ATT_MIN			10
 //#define	F_REP_MAX			60
