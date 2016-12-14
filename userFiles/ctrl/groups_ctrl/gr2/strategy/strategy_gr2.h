@@ -25,6 +25,7 @@ Strategy* init_strategy();
 void free_strategy(Strategy *strat);
 void main_strategy(CtrlStruct *cvs);
 void goToBase(CtrlStruct *cvs);
+void getOutofBase(CtrlStruct *cvs);
 
 NAMESPACE_CLOSE();
 

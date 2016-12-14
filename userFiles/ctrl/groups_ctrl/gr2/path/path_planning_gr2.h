@@ -11,7 +11,7 @@
 #include "CtrlStruct_gr2.h"
 
 //number of rectangles in the map (2000x3000 mm) and their four specifications (width,length, coord x,y of center)
-#define NB_RECT			22
+#define NB_RECT			23
 #define SPEC			4
 #define COORDS			2
 #define WIDTH			20
@@ -97,16 +97,22 @@
 #define CC_CENTER_X		-350
 #define CC_CENTER_Y		0
 
-//virtual wall
-#define CV1_WIDTH		150
-#define CV1_LENGTH		150
-#define CV1_CENTER_X	-275
-#define CV1_CENTER_Y	175
+// --- Virtual wall --- //
 
-#define CV2_WIDTH		150
-#define CV2_LENGTH		150
-#define CV2_CENTER_X	-275
-#define CV2_CENTER_Y	-175
+#define CV1_WIDTH		200
+#define CV1_LENGTH		200
+#define CV1_CENTER_X	-300
+#define CV1_CENTER_Y	200
+
+#define CV2_WIDTH		200
+#define CV2_LENGTH		200
+#define CV2_CENTER_X	-300
+#define CV2_CENTER_Y	-200
+
+#define CV3_WIDTH		600
+#define CV3_LENGTH		20
+#define CV3_CENTER_X	190
+#define CV3_CENTER_Y	0
 
 #define BLV1_WIDTH		400
 #define BLV1_LENGTH		100
@@ -150,6 +156,7 @@
 #define TLV4_CENTER_Y	750
 
 
+
 NAMESPACE_INIT(ctrlGr2);
 
 /// path-planning main structure
@@ -166,7 +173,7 @@ struct PathPlanning
 								{ BLV1_WIDTH ,BLV1_LENGTH ,BLV1_CENTER_X ,BLV1_CENTER_Y },{ BLV2_WIDTH ,BLV2_LENGTH ,BLV2_CENTER_X ,BLV2_CENTER_Y },
 								{ BLV3_WIDTH ,BLV3_LENGTH ,BLV3_CENTER_X ,BLV3_CENTER_Y },{ BLV4_WIDTH ,BLV4_LENGTH ,BLV4_CENTER_X ,BLV4_CENTER_Y },
 								{ TLV1_WIDTH ,TLV1_LENGTH ,TLV1_CENTER_X ,TLV1_CENTER_Y },{ TLV2_WIDTH ,TLV2_LENGTH ,TLV2_CENTER_X ,TLV2_CENTER_Y },
-								{ TLV3_WIDTH ,TLV3_LENGTH ,TLV3_CENTER_X ,TLV3_CENTER_Y },{ TLV4_WIDTH ,TLV4_LENGTH ,TLV4_CENTER_X ,TLV4_CENTER_Y } };
+								{ TLV3_WIDTH ,TLV3_LENGTH ,TLV3_CENTER_X ,TLV3_CENTER_Y },{ TLV4_WIDTH ,TLV4_LENGTH ,TLV4_CENTER_X ,TLV4_CENTER_Y },{ CV3_WIDTH ,CV3_LENGTH ,CV3_CENTER_X ,CV3_CENTER_Y } };
 	
 	int goal_pos[COORDS]; // position of the goal
 	float last_t;

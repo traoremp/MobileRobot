@@ -49,8 +49,8 @@ void main_strategy(CtrlStruct *cvs)
 	switch (strat->main_state)
 	{
 		case GAME_STATE_A:
-			cvs->path->goal_pos[X] = 100;
-			cvs->path->goal_pos[Y] = 0;
+			cvs->path->goal_pos[X] = -400;
+			cvs->path->goal_pos[Y] = 600;
 			follow_path(cvs);
 			//speed_regulation(cvs, 0.0, 0.0);
 			break;
@@ -58,13 +58,17 @@ void main_strategy(CtrlStruct *cvs)
 		case GAME_STATE_B:
 			goToBase(cvs);
 			break;
-
+			
 		case GAME_STATE_C:
-			speed_regulation(cvs, 0.0, 0.0);
+			//poser cible
+			//sortir de la base
+			getOutofBase(cvs);
 			break;
 
 		case GAME_STATE_D:
-			speed_regulation(cvs, 0.0, 0.0);
+			cvs->path->goal_pos[X] = 250;
+			cvs->path->goal_pos[Y] = 1250;
+			follow_path(cvs);
 			break;
 
 		case GAME_STATE_E:
@@ -113,6 +117,26 @@ void goToBase(CtrlStruct *cvs)
 	}
 
 	follow_path(cvs);
+}
+
+void getOutofBase(CtrlStruct *cvs)
+{
+	if (cvs->rob_pos->theta <0 && cvs->rob_pos->theta > -M_PI + 0.05)
+	{
+		speed_regulation(cvs, -20, 20);
+	}
+	else if (cvs->rob_pos->theta > 0 && cvs->rob_pos->theta < M_PI - 0.05)
+	{
+		speed_regulation(cvs, 20, -20);
+	}
+	else if (cvs->rob_pos->x < -0.2)
+	{
+		speed_regulation(cvs, -20, -20);
+	}
+	else
+	{
+		cvs->strat->main_state += 1;//next startegy state
+	}
 }
 
 NAMESPACE_CLOSE();
