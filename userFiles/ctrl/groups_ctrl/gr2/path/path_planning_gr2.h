@@ -11,7 +11,7 @@
 #include "CtrlStruct_gr2.h"
 
 //number of rectangles in the map (2000x3000 mm) and their four specifications (width,length, coord x,y of center)
-#define NB_RECT			23
+#define NB_RECT			24
 #define SPEC			4
 #define COORDS			2
 #define WIDTH			20
@@ -155,6 +155,13 @@
 #define TLV4_CENTER_X	-650
 #define TLV4_CENTER_Y	750
 
+// --- OPPONENT --- //
+
+#define OPP_WIDTH		350
+#define OPP_LENGTH		350
+#define OPP_CENTER_X	1200
+#define OPP_CENTER_Y	0
+
 
 
 NAMESPACE_INIT(ctrlGr2);
@@ -173,11 +180,13 @@ struct PathPlanning
 								{ BLV1_WIDTH ,BLV1_LENGTH ,BLV1_CENTER_X ,BLV1_CENTER_Y },{ BLV2_WIDTH ,BLV2_LENGTH ,BLV2_CENTER_X ,BLV2_CENTER_Y },
 								{ BLV3_WIDTH ,BLV3_LENGTH ,BLV3_CENTER_X ,BLV3_CENTER_Y },{ BLV4_WIDTH ,BLV4_LENGTH ,BLV4_CENTER_X ,BLV4_CENTER_Y },
 								{ TLV1_WIDTH ,TLV1_LENGTH ,TLV1_CENTER_X ,TLV1_CENTER_Y },{ TLV2_WIDTH ,TLV2_LENGTH ,TLV2_CENTER_X ,TLV2_CENTER_Y },
-								{ TLV3_WIDTH ,TLV3_LENGTH ,TLV3_CENTER_X ,TLV3_CENTER_Y },{ TLV4_WIDTH ,TLV4_LENGTH ,TLV4_CENTER_X ,TLV4_CENTER_Y },{ CV3_WIDTH ,CV3_LENGTH ,CV3_CENTER_X ,CV3_CENTER_Y } };
+								{ TLV3_WIDTH ,TLV3_LENGTH ,TLV3_CENTER_X ,TLV3_CENTER_Y },{ TLV4_WIDTH ,TLV4_LENGTH ,TLV4_CENTER_X ,TLV4_CENTER_Y },
+								{ OPP_WIDTH ,OPP_LENGTH ,OPP_CENTER_X ,OPP_CENTER_Y },{ CV3_WIDTH ,CV3_LENGTH ,CV3_CENTER_X ,CV3_CENTER_Y } };
 	
 	int goal_pos[COORDS]; // position of the goal
 	float last_t;
 	bool wait;
+	int cage_open = 0; //initialise closed
 };
 
 PathPlanning* init_path_planning();

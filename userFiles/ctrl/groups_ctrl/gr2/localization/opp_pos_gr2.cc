@@ -69,6 +69,7 @@ void opponents_tower(CtrlStruct *cvs)
 	opp_pos->x[0] = 0.0;
 	opp_pos->y[0] = 0.0;	
 	single_opp_tower(rise_1, fall_1, rob_pos->x, rob_pos->y, rob_pos->theta, &opp_pos->x[0], &opp_pos->y[0]);
+
 	if(nb_opp == 2){
 		opp_pos->x[1] = 0.0;
 		opp_pos->y[1] = 0.0;

@@ -5,6 +5,7 @@
 #include "path_planning_gr2.h"
 #include "strategy_gr2.h"
 #include <iostream>
+#include "opp_pos_gr2.h"
 
 NAMESPACE_INIT(ctrlGr2);
 
@@ -29,10 +30,8 @@ void follow_path(CtrlStruct *cvs)
 	bool found = false; 
 	double alpha;
 	double alpha_rel;
-	double t;
 
-
-	t = cvs->inputs->t;
+	cvs->outputs->flag_release = 0;
 
 	rob_posx = cvs->rob_pos->x * 1000;
 	rob_posy = cvs->rob_pos->y * 1000;
@@ -57,7 +56,22 @@ void follow_path(CtrlStruct *cvs)
 	int ob_number = 0;
 	int cas_nb = 0;
 	int ob_cas_nb = 0;
-	for (int i = 0; i < NB_RECT; i++)
+
+
+	//UPDATE OPPENENT POSITION
+	//cvs->path->map[22][OB_X] = cvs->opp_pos->x[0] * 1000;
+	//cvs->path->map[22][OB_Y] = cvs->opp_pos->y[0] * 1000;
+
+	if ((goal_posx == 100 && goal_posy == 0) || (rob_posx>-100 && rob_posx<100 && rob_posx>-300 && rob_posy<300))
+	{
+		cvs->path->cage_open = 1;//cage open
+	}
+	else
+	{
+		cvs->path->cage_open = 0;//cage closed
+	}
+
+	for (int i = 0; i < NB_RECT-cvs->path->cage_open; i++)
 	{
 		if (rob_posx<cvs->path->map[i][OB_X]- cvs->path->map[i][OB_L]/2 && rob_posy>cvs->path->map[i][OB_Y]+ cvs->path->map[i][OB_H]/2)
 		{
@@ -164,24 +178,30 @@ void follow_path(CtrlStruct *cvs)
 	F_tot[X] = F_att[X] + F_rep[X];
 	F_tot[Y] = F_att[Y] + F_rep[Y];
 
-	if (norm_dist(rob_posx - cvs->path->goal_pos[X], rob_posy - cvs->path->goal_pos[Y]) < 40 && !cvs->path->wait) //Goal reached
+
+	//Goal reached
+	if (norm_dist(rob_posx - cvs->path->goal_pos[X], rob_posy - cvs->path->goal_pos[Y]) < 100 && cvs->inputs->target_detected && !cvs->path->wait && rob_posx>-500) 
 	{
-		cvs->path->last_t = t;
 		cvs->path->wait = 1;
 		F_tot[X] = 0;
 		F_tot[Y] = 0;
 		
 	}
-	else if (norm_dist(rob_posx - cvs->path->goal_pos[X], rob_posy - cvs->path->goal_pos[Y]) < 40 && cvs->path->wait)
+	else if (cvs->path->wait)
 	{
 		F_tot[X] = 0;
 		F_tot[Y] = 0;
-
-		if (t - cvs->path->last_t > 2)
+		
+		if (!cvs->inputs->target_detected)
 		{
+			cvs->inputs->nb_targets += 1;
 			cvs->path->wait = 0;
 			cvs->strat->main_state += 1;//next startegy state
 		}
+	}
+	else if (norm_dist(rob_posx - cvs->path->goal_pos[X], rob_posy - cvs->path->goal_pos[Y]) < 50 && !cvs->path->wait)
+	{
+		cvs->strat->main_state += 1;//next startegy state
 	}
 
 	
@@ -216,8 +236,8 @@ void ForceToCommand(double F[], CtrlStruct *cvs)
 		ampl = ampl > 80 ? 80 : ampl ;
 		ampl = ampl < 10 ? 10 : ampl;
 
-        wl = ampl - 2*ROT_SPEED*alpha/M_PI*ampl;
-        wr = ampl + 2*ROT_SPEED*alpha/M_PI*ampl;
+        wl = 20 - 2*ROT_SPEED*alpha/M_PI*20;
+        wr = 20 + 2*ROT_SPEED*alpha/M_PI*20;
     }
     else
    	{

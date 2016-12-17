@@ -53,9 +53,13 @@ void user_dirdyn_loop(MbsData *mbs_data, MbsDirdyn *mbs_dd)
 	//set_plot(mbs_data->qd[Right_wheel_joint_B_id], "R wheel [rad/s]");
 	//set_plot(mbs_data->qd[Left_wheel_joint_B_id], "L wheel [rad/s]");
 
-	set_plot(mbs_data->q[FJ_T1_robot_B_id], "x[m]");
-	set_plot(mbs_data->q[FJ_T2_robot_B_id], "y[m]");
-	set_plot(mbs_data->q[FJ_R3_robot_B_id], "theta[rad]");
+	set_plot(mbs_data->q[FJ_T1_robot_B_id], "X");
+	set_plot(mbs_data->q[FJ_T2_robot_B_id], "Y");
+	set_plot(mbs_data->q[FJ_R3_robot_B_id], "T");
+
+	//set_plot(mbs_data->q[FJ_T1_robot_Y_id], "xop[m]");
+	//set_plot(mbs_data->q[FJ_T2_robot_Y_id], "yop[m]");
+	//set_plot(mbs_data->q[FJ_R3_robot_Y_id], "theta[rad]");
 
 	
 
