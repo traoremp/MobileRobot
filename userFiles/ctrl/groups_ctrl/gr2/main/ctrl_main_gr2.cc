@@ -86,7 +86,7 @@ void controller_loop(CtrlStruct *cvs)
 	update_odometry(cvs);
 
 	// triangulation
-	triangulation(cvs);
+	//triangulation(cvs);
 
 	// opponents position
 	opponents_tower(cvs);
@@ -116,25 +116,7 @@ void controller_loop(CtrlStruct *cvs)
 
 		// wait before match beginning
 	case WAIT_INIT_STATE:
-		//speed_regulation(cvs, 0.0, 0.0);
-
-		// if (t > 0.0)
-		// {
-		// 	//cvs->main_state = RUN_STATE;
-		// 	//cvs->strat->main_state = GAME_STATE_A;
-
-		// 	// triangulation
-		// 	triangulation(cvs);
-		// 	if (t < 16.0 )
-		// 		t > 10.0 ? speed_regulation(cvs, 10, 10) : speed_regulation(cvs, 0.0, 0.0);
-		// 	else if (t >= 16.0 && !(cvs->rob_pos->theta + 0.2 >= M_PI))
-		// 		speed_regulation(cvs, -10, 10);
-		// 	else
-		// 		speed_regulation(cvs, 10, 10);
-
-		// }
-		// else
-		// 	speed_regulation(cvs, 0.0, 0.0);
+		
 		cvs->main_state = RUN_STATE;
 		cvs->strat->main_state = GAME_STATE_A;
 		if (!thread_join) {
@@ -146,6 +128,7 @@ void controller_loop(CtrlStruct *cvs)
 
 		// during game
 	case RUN_STATE:
+		triangulation(cvs);
 		main_strategy(cvs);
 
 		if (t > 89.0) // 1 second safety

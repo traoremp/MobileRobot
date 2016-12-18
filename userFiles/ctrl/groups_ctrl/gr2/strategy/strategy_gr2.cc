@@ -64,7 +64,7 @@ void main_strategy(CtrlStruct *cvs)
 			break;
 
 		case GAME_STATE_C:
-			goal = Map_Element(0.25, -1.25);
+			goal = Map_Element(-0.4, -0.6);
 			path->AStar(start, goal);
 			cvs->strat->main_state = GAME_STATE_D;
 			break;
@@ -74,6 +74,15 @@ void main_strategy(CtrlStruct *cvs)
 			break;
 
 		case GAME_STATE_E:
+			goal = Map_Element(0.7, -0.6);
+			path->AStar(start, goal);
+			cvs->strat->main_state = GAME_STATE_F;
+			break;
+
+		case GAME_STATE_F:
+			follow_path(cvs);
+			break;
+		case GAME_STATE_G:
 			speed_regulation(cvs, -100.0, 100.0);
 			break;
 

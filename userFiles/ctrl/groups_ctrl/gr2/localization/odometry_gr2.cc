@@ -1,7 +1,6 @@
 #include "odometry_gr2.h"
 #include "useful_gr2.h"
 #include "init_pos_gr2.h"
-#include <math.h>
 
 NAMESPACE_INIT(ctrlGr2);
 

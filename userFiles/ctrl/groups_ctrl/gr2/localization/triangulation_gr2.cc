@@ -1,6 +1,7 @@
 #include "triangulation_gr2.h"
 #include "useful_gr2.h"
 #include "init_pos_gr2.h"
+#include "kalman_gr2.h"
 #include <math.h>
 NAMESPACE_INIT(ctrlGr2);
 
@@ -189,6 +190,7 @@ void triangulation(CtrlStruct *cvs)
 	relatives_angles[1] = alpha_2;
 	relatives_angles[2] = alpha_3;
 
+	kalman(cvs, relatives_angles);
 	// ----- triangulation computation start ----- //
 
 	// robot position
