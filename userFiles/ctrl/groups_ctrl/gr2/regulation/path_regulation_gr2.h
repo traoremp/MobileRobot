@@ -18,15 +18,15 @@
 #define DIST_THRESHOLD		110 	//threshold for repulsive field
 #define K_ATT 				0.02
 #define	K_REP				260000
+#define K_OPP				500000
 //#define	F_ATT_MAX			40
 //#define	F_ATT_MIN			10
 //#define	F_REP_MAX			60
 #define ROT_SPEED 			1.8 //constante used for forcetocommand to specify the rotation speed 
-#define OB_H	0
-#define OB_L	1
-#define OB_X	2
-#define OB_Y	3
-
+#define OB_H				0
+#define OB_L				1
+#define OB_X				2
+#define OB_Y				3
 
 NAMESPACE_INIT(ctrlGr2);
 

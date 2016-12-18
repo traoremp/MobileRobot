@@ -18,6 +18,7 @@ void follow_path(CtrlStruct *cvs)
 	//attractive and repulsive forces
 	double F_att[COORDS];
 	double F_rep[COORDS];
+	double F_opp[COORDS];
 	double F_tot[COORDS];
 	int obst_pos[COORDS];
 
@@ -25,8 +26,11 @@ void follow_path(CtrlStruct *cvs)
 	int rob_posy;
 	int goal_posx;
 	int goal_posy;
+	int opp_posx;
+	int opp_posy;
 
 	double obstacle_theta = 0;
+	double opp_theta = 0;
 	bool found = false; 
 	double alpha;
 	double alpha_rel;
@@ -38,6 +42,9 @@ void follow_path(CtrlStruct *cvs)
 	
 	goal_posx = cvs->path->goal_pos[X];
 	goal_posy = cvs->path->goal_pos[Y];
+
+	opp_posx = cvs->opp_pos->x[0] * 1000;
+	opp_posy = cvs->opp_pos->y[0] * 1000;
 
 	// --- Potential Field algorithm (start) --- //
 	
@@ -52,6 +59,7 @@ void follow_path(CtrlStruct *cvs)
 	
 	//get closest obstacle distance and angle
 	int obstacle_dist = DIST_THRESHOLD;
+	int opp_dist;
 	int d_computed;
 	int ob_number = 0;
 	int cas_nb = 0;
@@ -149,7 +157,7 @@ void follow_path(CtrlStruct *cvs)
 		default:
 			break;
 	}
-				
+	
 	if (obstacle_dist >= DIST_THRESHOLD || obstacle_dist == 0)
 	{
 		F_rep[X] = 0;
@@ -174,7 +182,7 @@ void follow_path(CtrlStruct *cvs)
 	std::cout << "obst_dist: " << obstacle_dist << ",";
 	std::cout << "obst_cas_nb: " << ob_cas_nb << ",";
 	std::cout << "obst_theta: " << obstacle_theta << std::endl;*/
-	
+
 	F_tot[X] = F_att[X] + F_rep[X];
 	F_tot[Y] = F_att[Y] + F_rep[Y];
 
@@ -204,7 +212,30 @@ void follow_path(CtrlStruct *cvs)
 		cvs->strat->main_state += 1;//next startegy state
 	}
 
+	// Opponent force computation
+	opp_dist = norm_dist(rob_posx - opp_posx, rob_posy - opp_posy) - ROBOT_SIZE;
+	opp_theta = atan2((opp_posy-rob_posy) , (opp_posx - rob_posx));
+	//std::cout << opp_dist << std::endl;
+	//std::cout << opp_theta << std::endl;
 	
+	if (opp_dist < 3*DIST_THRESHOLD)
+	{
+		F_opp[X] = K_OPP*(1.0 / opp_dist - 1.0 / (3*DIST_THRESHOLD))*(rob_posx - (rob_posx + round(opp_dist*cos(opp_theta)))) / pow(opp_dist, 2);
+		F_opp[Y] = K_OPP*(1.0 / opp_dist - 1.0 / (3*DIST_THRESHOLD))*(rob_posy - (rob_posy + round(opp_dist*sin(opp_theta)))) / pow(opp_dist, 2);
+		std::cout << F_opp[X] << std::endl;
+		std::cout << F_opp[Y] << std::endl;
+		//F_tot[X] = 0;
+		//F_tot[Y] = 0;
+	}
+	else
+	{
+		F_opp[X] = 0;
+		F_opp[Y] = 0;
+	}
+
+	F_tot[X] = F_tot[X] + F_opp[X];
+	F_tot[Y] = F_tot[Y] + F_opp[Y];
+
 	// --- Potential Field algorithm (end) --- //
 	
 	// --- Force to motors command transformation (sart) --- //
