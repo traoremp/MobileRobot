@@ -222,49 +222,21 @@ void follow_path(CtrlStruct *cvs)
 	F_tot[X] = F_att[X] + F_rep[X];
 	F_tot[Y] = F_att[Y] + F_rep[Y];
 
-
-	//Goal reached
-	if (cvs->path->wait)
-	{
-		F_tot[X] = 0;
-		F_tot[Y] = 0;
-
-		turn = 0;
-
-		if (!cvs->inputs->target_detected)
-		{
-			cvs->inputs->nb_targets += 1;
-			cvs->path->wait = 0;
-			cvs->strat->main_state += 1;//next startegy state
-		}
-	}
-	else if (norm_dist(rob_posx - cvs->path->goal_pos[X], rob_posy - cvs->path->goal_pos[Y]) < 200 && cvs->inputs->target_detected && (rob_posx>team_base_x || rob_posy>team_base_y))
-	{
-		cvs->path->wait = 1;
-		F_tot[X] = 0;
-		F_tot[Y] = 0;
-		
-	}
-	else if (norm_dist(rob_posx - cvs->path->goal_pos[X], rob_posy - cvs->path->goal_pos[Y]) < 50)
-	{
-		cvs->strat->main_state += 1;//next startegy state
-	}
-
 	// Opponents force computation
 	opp1_dist = norm_dist(rob_posx - opp1_posx, rob_posy - opp1_posy) - ROBOT_SIZE;
-	opp1_theta = atan2((opp1_posy-rob_posy) , (opp1_posx - rob_posx));
+	opp1_theta = atan2((opp1_posy - rob_posy), (opp1_posx - rob_posx));
 
 	opp2_dist = norm_dist(rob_posx - opp2_posx, rob_posy - opp2_posy) - ROBOT_SIZE;
 	opp2_theta = atan2((opp2_posy - rob_posy), (opp2_posx - rob_posx));
 	//std::cout << opp_dist << std::endl;
 	//std::cout << opp_theta << std::endl;
-	
+
 	// first opponent force
-	if (opp1_dist < 3*DIST_THRESHOLD && opp1_dist!=0)
+	if (opp1_dist < 3 * DIST_THRESHOLD && opp1_dist != 0)
 	{
-		F_opp1[X] = K_OPP*(1.0 / opp1_dist - 1.0 / (3*DIST_THRESHOLD))*(rob_posx - (rob_posx + round(opp1_dist*cos(opp1_theta)))) / pow(opp1_dist, 2);
-		F_opp1[Y] = K_OPP*(1.0 / opp1_dist - 1.0 / (3*DIST_THRESHOLD))*(rob_posy - (rob_posy + round(opp1_dist*sin(opp1_theta)))) / pow(opp1_dist, 2);
-		
+		F_opp1[X] = K_OPP*(1.0 / opp1_dist - 1.0 / (3 * DIST_THRESHOLD))*(rob_posx - (rob_posx + round(opp1_dist*cos(opp1_theta)))) / pow(opp1_dist, 2);
+		F_opp1[Y] = K_OPP*(1.0 / opp1_dist - 1.0 / (3 * DIST_THRESHOLD))*(rob_posy - (rob_posy + round(opp1_dist*sin(opp1_theta)))) / pow(opp1_dist, 2);
+
 		//std::cout << F_opp[X] << std::endl;
 		//std::cout << F_opp[Y] << std::endl;
 		//F_tot[X] = 0;
@@ -296,6 +268,35 @@ void follow_path(CtrlStruct *cvs)
 	F_tot[X] = F_tot[X] + F_opp1[X] + F_opp2[X];
 	F_tot[Y] = F_tot[Y] + F_opp1[Y] + F_opp2[Y];
 
+
+	//Goal reached
+	if (cvs->path->wait)
+	{
+		F_tot[X] = 0;
+		F_tot[Y] = 0;
+
+		turn = 0;
+
+		if (!cvs->inputs->target_detected)
+		{
+			cvs->inputs->nb_targets += 1;
+			cvs->path->wait = 0;
+			cvs->strat->main_state += 1;//next startegy state
+		}
+	}
+	else if ((cvs->team_id==TEAM_A && norm_dist(rob_posx - cvs->path->goal_pos[X], rob_posy - cvs->path->goal_pos[Y]) < 200 && cvs->inputs->target_detected && (rob_posx>-500||rob_posy>-800)) || (cvs->team_id == TEAM_B && norm_dist(rob_posx - cvs->path->goal_pos[X], rob_posy - cvs->path->goal_pos[Y]) < 200 && cvs->inputs->target_detected && (rob_posx>-500 || rob_posy<800) )) 
+	{
+		cvs->path->wait = 1;
+		F_tot[X] = 0;
+		F_tot[Y] = 0;
+		
+	}
+	else if (norm_dist(rob_posx - cvs->path->goal_pos[X], rob_posy - cvs->path->goal_pos[Y]) < 50)
+	{
+		cvs->strat->main_state += 1;//next startegy state
+	}
+
+	
 	// --- Potential Field algorithm (end) --- //
 	
 	// --- Force to motors command transformation (sart) --- //

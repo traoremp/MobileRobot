@@ -163,6 +163,30 @@ void main_strategy(CtrlStruct *cvs)
 
 		case GAME_STATE_R:
 			//std::cout << "STATE: R" << std::endl;
+			getOutofBase(cvs);
+			break;
+
+		case GAME_STATE_S:
+			//std::cout << "STATE: P" << std::endl;
+			cvs->path->goal_pos[X] = -800;
+			cvs->path->goal_pos[Y] = 0;
+			follow_path(cvs);
+			break;
+
+		case GAME_STATE_T:
+			//std::cout << "STATE: P" << std::endl;
+			cvs->path->goal_pos[X] = -400;
+			cvs->path->goal_pos[Y] = 600;
+			follow_path(cvs);
+			break;
+
+		case GAME_STATE_U:
+			//std::cout << "STATE: P" << std::endl;
+			goToBase(cvs);
+			break;
+
+		case GAME_STATE_V:
+			//std::cout << "STATE: P" << std::endl;
 			cvs->outputs->flag_release = 1; //lacher les cibles
 			speed_regulation(cvs, 0.0, 0.0);
 			break;
