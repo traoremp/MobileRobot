@@ -71,5 +71,32 @@ double first_order_filter(double last_val, double new_val, double tau, double de
 	return f * frac * new_val + frac * last_val;
 }
 
+/*! \brief return the sign of a float number
+ * 
+ * \param[in] input float number
+ * \return sign +1,-1,0
+ */
+int sign(float input)
+{
+	if(input > 0)
+		return 1;
+	else if(input < 0)
+		return -1;
+	else
+		return 0;
+}
+
+/*! \brief return the determinant of 2X2 matrix composed of [E1 E2]
+*
+* \param[in] E1,E2: vector
+* \return det(a)
+*/
+float Det2X2Matrix(float * E1, float * E2)
+{
+	float det;
+
+	det = E1[0] * E2[1] - E1[1] * E2[0];
+	return det;
+}
 
 NAMESPACE_CLOSE();
