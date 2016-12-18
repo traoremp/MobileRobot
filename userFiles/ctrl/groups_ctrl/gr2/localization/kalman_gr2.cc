@@ -11,6 +11,7 @@ NAMESPACE_INIT(ctrlGr2);
  */
 void kalman(CtrlStruct *cvs, double* angles_beacons)
 {
+
 	static KalmanStruc* my_filter = new KalmanStruc();
 	// variable declaration
 	RobotPosition *rob_pos;
@@ -36,6 +37,11 @@ void kalman(CtrlStruct *cvs, double* angles_beacons)
 	inputs = cvs->inputs;
 	// time
 	dt = inputs->t - rob_pos->last_t; // time increment since last call
+	
+	/*angles_beacons[0] = my_filter->angle_becons_previous[0] = first_order_filter(my_filter->angle_becons_previous[0], angles_beacons[0], 2*M_PI/10000000000, dt);
+	angles_beacons[1] = my_filter->angle_becons_previous[1] = first_order_filter(my_filter->angle_becons_previous[1], angles_beacons[1], 2*M_PI/10000000000, dt);
+	angles_beacons[2] = my_filter->angle_becons_previous[2] = first_order_filter(my_filter->angle_becons_previous[2], angles_beacons[2], 2*M_PI/10000000000, dt);*/
+
 
 	//recreer les variables d'odometry
 	r_sp = inputs->r_wheel_speed; // right wheel speed
@@ -75,25 +81,40 @@ void kalman(CtrlStruct *cvs, double* angles_beacons)
 	cov_w << pow(WHEEL_NOISE, 2), 0.0,
 		0.0, pow(WHEEL_NOISE, 2);
 
-	
+	//matrix R coivariances du bruit sur les mesures d'angles
+	Eigen::Matrix3f R;
+	R << pow(TOWER_NOISE, 2), 0.0, 0.0,
+		0.0, pow(TOWER_NOISE, 2), 0.0,
+		0.0, 0.0, pow(TOWER_NOISE, 2);
+
 	//robot position without angle in vector
 	Eigen::Vector3f robot_pos;
 	robot_pos << rob_pos->x, rob_pos->y,0.0;
 
 	//unit vector pointing in direction of the robot
 	Eigen::Vector3f U;
-	U << cos(rob_pos->theta), sin(rob_pos->theta), 0.0;
+	U << cos(next_x[2]), sin(next_x[2]), 0.0;
 
 	//Angles estimates to get x in the coordinates of the measurements -> run x through measurement function h
 	Eigen::Vector3f Y_estimate;
-	Y_estimate << limit_angle(atan2((U.cross(Eigen::Vector3f(x_beac_1, y_beac_1,0.0) - robot_pos)).norm(), U.dot(Eigen::Vector3f(x_beac_1, y_beac_1,0.0) - robot_pos) + beacon_uncentered)),
-		limit_angle(atan2((U.cross(Eigen::Vector3f(x_beac_2, y_beac_2,0.0) - robot_pos)).norm(), U.dot(Eigen::Vector3f(x_beac_2, y_beac_2,0.0) - robot_pos) + beacon_uncentered)),
-		limit_angle(atan2((U.cross(Eigen::Vector3f(x_beac_3, y_beac_3,0.0) - robot_pos)).norm(), U.dot(Eigen::Vector3f(x_beac_3, y_beac_3,0.0) - robot_pos) + beacon_uncentered));
-	//matrix R coivariances du bruit sur les mesures d'angles
-	Eigen::Matrix3f R;
-	R << pow(TOWER_NOISE, 2), 0.0, 0.0,
-		0.0, pow(TOWER_NOISE, 2), 0.0,
-		0.0, 0.0, pow(TOWER_NOISE, 2);
+	auto test_1 = (U.cross(Eigen::Vector3f(x_beac_1, y_beac_1, 0.0) - robot_pos));
+	double cross_1 = test_1.norm() * test_1[2] / abs(test_1[2]);
+	double dot_1 = U.dot(Eigen::Vector3f(x_beac_1, y_beac_1, 0.0) - robot_pos) + beacon_uncentered;
+
+	auto test_2 = (U.cross(Eigen::Vector3f(x_beac_2, y_beac_2, 0.0) - robot_pos));
+	double cross_2 = test_2.norm() * test_2[2] / abs(test_2[2]);
+	double dot_2 = U.dot(Eigen::Vector3f(x_beac_2, y_beac_2, 0.0) - robot_pos) + beacon_uncentered;
+
+
+	auto test_3 = (U.cross(Eigen::Vector3f(x_beac_3, y_beac_3, 0.0) - robot_pos));
+	double cross_3 = test_3.norm() * test_3[2] / abs(test_3[2]);
+	double dot_3 = U.dot(Eigen::Vector3f(x_beac_3, y_beac_3, 0.0) - robot_pos) + beacon_uncentered;
+	
+
+	Y_estimate << atan2(cross_1, dot_1 ),
+		 atan2(cross_2, dot_2 ),
+		 atan2(cross_3, dot_3);
+	
 	//measured angles
 	Eigen::Vector3f Y_measured;
 	Y_measured << angles_beacons[0],
@@ -127,7 +148,7 @@ void kalman(CtrlStruct *cvs, double* angles_beacons)
 	next_x_cov_mat_p = F_x * my_filter->X_cov_mat * F_x.transpose() + Q_k;
 	
 	//compute S(k+1)
-	Eigen::Matrix3f S_k = H_x * next_x_cov_mat_p * H_x.transpose() + R;
+	Eigen::Matrix3f S_k = (H_x * next_x_cov_mat_p * H_x.transpose()) + R;
 
 	//compute kalman gain 
 	Eigen::Matrix3f kalman_gain = (next_x_cov_mat_p * H_x.transpose()) * S_k.inverse();
@@ -146,6 +167,11 @@ KalmanStruc::KalmanStruc() {
 		0.0, pow(T2_UNCERT, 2), 0.0,
 		0.0, 0.0, pow(DEG_TO_RAD*R3_UNCERT, 2)
 		;
+
+	/*angle_becons_previous[0] = 0.0;
+	angle_becons_previous[1] = 0.0;
+	angle_becons_previous[2] = 0.0;*/
+
 }
 
 NAMESPACE_CLOSE();

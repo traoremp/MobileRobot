@@ -88,7 +88,7 @@ void user_realtime_options(MbsData* mbs_data, Realtime_option *options)
 
 	config_file = open_config();
 	//To Use Debug Mode
-	options->flag_visu = 0;
+	//options->flag_visu = 0;
 
 	#ifdef HARDCODED_CONFIG
 	options->nb_q[0] = NB_JOINTS_ANIM;

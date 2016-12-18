@@ -20,7 +20,7 @@ struct KalmanStruc
 	KalmanStruc();
 	//Eigen::Vector3f X_current; next x sera calculee par odometry donc pas besoin de garder cette reference
 	Eigen::Matrix3f X_cov_mat;//process covariance matrix
-
+	//double  angle_becons_previous[3];
 	//int dummy_variable; ///< put your own variable, this is just an example without purpose
 };
 

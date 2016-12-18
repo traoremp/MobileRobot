@@ -86,7 +86,7 @@ void controller_loop(CtrlStruct *cvs)
 	update_odometry(cvs);
 
 	// triangulation
-	//triangulation(cvs);
+	triangulation(cvs);
 
 	// opponents position
 	opponents_tower(cvs);
@@ -97,12 +97,12 @@ void controller_loop(CtrlStruct *cvs)
 	//set_plot(inputs->r_wheel_speed, "R_w_in[rad/s]");
 	//set_plot(inputs->l_wheel_speed, "L_w_in[rad/s]");
 
-	//set_plot(cvs->rob_pos->x, "x_odo[m]");
-	//set_plot(cvs->rob_pos->y, "y_odo[m]");
-	//set_plot(cvs->rob_pos->theta, "theta_odo[rad]");
-	set_plot(cvs->triang_pos->x, "x_tri[m]");
-	set_plot(cvs->triang_pos->y, "y_tri[m]");
-	set_plot(cvs->triang_pos->theta, "theta_tri[rad]");
+	set_plot(cvs->rob_pos->x, "x_odo[m]");
+	set_plot(cvs->rob_pos->y, "y_odo[m]");
+	set_plot(cvs->rob_pos->theta, "theta_odo[rad]");
+	//set_plot(cvs->triang_pos->x, "x_tri[m]");
+	//set_plot(cvs->triang_pos->y, "y_tri[m]");
+	//set_plot(cvs->triang_pos->theta, "theta_tri[rad]");
 	switch (cvs->main_state)
 	{
 		// calibration
@@ -117,18 +117,23 @@ void controller_loop(CtrlStruct *cvs)
 		// wait before match beginning
 	case WAIT_INIT_STATE:
 		
-		cvs->main_state = RUN_STATE;
-		cvs->strat->main_state = GAME_STATE_A;
+
+		speed_regulation(cvs, 0.0, 0.0);
 		if (!thread_join) {
 			path_init.join();
 			thread_join = true;
 		}
-		
+		if (t > 0.0)
+		{
+			cvs->main_state = RUN_STATE;
+			cvs->strat->main_state = GAME_STATE_A;
+		}
+		//triangulation(cvs);
 		break;
 
 		// during game
 	case RUN_STATE:
-		triangulation(cvs);
+		
 		main_strategy(cvs);
 
 		if (t > 89.0) // 1 second safety
