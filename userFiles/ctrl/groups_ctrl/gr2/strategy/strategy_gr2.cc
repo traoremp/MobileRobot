@@ -50,143 +50,115 @@ void main_strategy(CtrlStruct *cvs)
 	switch (strat->main_state)
 	{
 		case GAME_STATE_A:
-			//std::cout << "STATE: A" << std::endl;
 			getOutofStart(cvs);
-			//cvs->path->goal_pos[X] = 600;
-			//cvs->path->goal_pos[Y] = 0;
-			//follow_path(cvs);
 			break;
 
 		case GAME_STATE_B:
-			//std::cout << "STATE: B" << std::endl;
 			cvs->path->goal_pos[X] = 100;
 			cvs->path->goal_pos[Y] = 0;
 			follow_path(cvs);
-			//goToBase(cvs);
 			break;
 			
 		case GAME_STATE_C:
-			//std::cout << "STATE: C" << std::endl;
-			//goal interm pour sortir facilement de la cage
 			cvs->path->goal_pos[X] = 400;
 			cvs->path->goal_pos[Y] = 100;
 			follow_path(cvs);
-			//getOutofBase(cvs);
 			break;
 
 		case GAME_STATE_D:
-			//std::cout << "STATE: D" << std::endl;
 			cvs->path->goal_pos[X] = 250;
 			cvs->path->goal_pos[Y] = 1250;
 			follow_path(cvs);
 			break;
 
 		case GAME_STATE_E:
-			//std::cout << "STATE: E" << std::endl;
 			cvs->path->goal_pos[X] = 600;
 			cvs->path->goal_pos[Y] = 0;
 			follow_path(cvs);
 			break;
 
 		case GAME_STATE_F:
-			//std::cout << "STATE: F" << std::endl;
 			cvs->outputs->flag_release = 1; //lacher les cibles
 			cvs->strat->main_state += 1;//next startegy state
 			break;
 
 		case GAME_STATE_G:
-			//std::cout << "STATE: G" << std::endl;
 			cvs->path->goal_pos[X] = 250;
 			cvs->path->goal_pos[Y] = -1250;
 			follow_path(cvs);
 			break;
 
 		case GAME_STATE_H:
-			//std::cout << "STATE: H" << std::endl;
 			cvs->path->goal_pos[X] = -400;
 			cvs->path->goal_pos[Y] = -600;
 			follow_path(cvs);
 			break;
 
 		case GAME_STATE_I:
-			//std::cout << "STATE: I" << std::endl;
 			goToBase(cvs);
 			break;
 		
 		case GAME_STATE_J:
-			//std::cout << "STATE: J" << std::endl;
 			getOutofBase(cvs);
 			break;
 
 		case GAME_STATE_K:
-			//std::cout << "STATE: K" << std::endl;
 			cvs->path->goal_pos[X] = 700;
 			cvs->path->goal_pos[Y] = -600;
 			follow_path(cvs);
 			break;
 
 		case GAME_STATE_L:
-			//std::cout << "STATE: L" << std::endl;
 			cvs->path->goal_pos[X] = 700;
 			cvs->path->goal_pos[Y] = 600;
 			follow_path(cvs);
 			break;
 
 		case GAME_STATE_M:
-			//std::cout << "STATE: M" << std::endl;
 			goToBase(cvs);
 			break;
 
 		case GAME_STATE_N:
-			//std::cout << "STATE: N" << std::endl;
 			getOutofBase(cvs);
 			break;
 
 		case GAME_STATE_O:
-			//std::cout << "STATE: O" << std::endl;
 			cvs->path->goal_pos[X] = 600;
 			cvs->path->goal_pos[Y] = 0;
 			follow_path(cvs);
 			break;
 
 		case GAME_STATE_P:
-			//std::cout << "STATE: P" << std::endl;
 			cvs->path->goal_pos[X] = 600;
 			cvs->path->goal_pos[Y] = 0;
 			follow_path(cvs);
 			break;
 
 		case GAME_STATE_Q:
-			//std::cout << "STATE: Q" << std::endl;
 			goToBase(cvs);
 			break;
 
 		case GAME_STATE_R:
-			//std::cout << "STATE: R" << std::endl;
 			getOutofBase(cvs);
 			break;
 
 		case GAME_STATE_S:
-			//std::cout << "STATE: P" << std::endl;
 			cvs->path->goal_pos[X] = -800;
 			cvs->path->goal_pos[Y] = 0;
 			follow_path(cvs);
 			break;
 
 		case GAME_STATE_T:
-			//std::cout << "STATE: P" << std::endl;
 			cvs->path->goal_pos[X] = -400;
 			cvs->path->goal_pos[Y] = 600;
 			follow_path(cvs);
 			break;
 
 		case GAME_STATE_U:
-			//std::cout << "STATE: P" << std::endl;
 			goToBase(cvs);
 			break;
 
 		case GAME_STATE_V:
-			//std::cout << "STATE: P" << std::endl;
 			cvs->outputs->flag_release = 1; //lacher les cibles
 			speed_regulation(cvs, 0.0, 0.0);
 			break;
@@ -201,8 +173,6 @@ void goToBase(CtrlStruct *cvs)
 {
 	double distance = sqrt(pow(cvs->rob_pos->x + 0.7, 2) + pow(cvs->rob_pos->y + 1.2, 2));
 	double angle = atan2(cvs->rob_pos->y + 1.2, cvs->rob_pos->x + 0.7);
-
-	//std::cout << angle << std::endl;
 
 	switch (cvs->team_id)
 	{

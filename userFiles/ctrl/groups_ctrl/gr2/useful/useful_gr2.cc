@@ -89,7 +89,7 @@ int sign(float input)
 /*! \brief return the determinant of 2X2 matrix composed of [E1 E2]
 *
 * \param[in] E1,E2: vector
-* \return det(a)
+* \return det()
 */
 double Det2X2Matrix(double * E1, double * E2)
 {

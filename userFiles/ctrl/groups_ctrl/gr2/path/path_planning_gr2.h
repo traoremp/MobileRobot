@@ -97,7 +97,7 @@
 #define CC_CENTER_X		-350
 #define CC_CENTER_Y		0
 
-// --- Virtual wall --- //
+// --- Virtual wall (avoid local minima) --- //
 
 #define CV1_WIDTH		200
 #define CV1_LENGTH		200
@@ -155,15 +155,6 @@
 #define TLV4_CENTER_X	-650
 #define TLV4_CENTER_Y	750
 
-// --- OPPONENT --- //
-/*
-#define OPP_WIDTH		350
-#define OPP_LENGTH		350
-#define OPP_CENTER_X	1200
-#define OPP_CENTER_Y	0
-
-*/
-
 NAMESPACE_INIT(ctrlGr2);
 
 /// path-planning main structure
@@ -182,7 +173,7 @@ struct PathPlanning
 								{ TLV1_WIDTH ,TLV1_LENGTH ,TLV1_CENTER_X ,TLV1_CENTER_Y },{ TLV2_WIDTH ,TLV2_LENGTH ,TLV2_CENTER_X ,TLV2_CENTER_Y },
 								{ TLV3_WIDTH ,TLV3_LENGTH ,TLV3_CENTER_X ,TLV3_CENTER_Y },{ TLV4_WIDTH ,TLV4_LENGTH ,TLV4_CENTER_X ,TLV4_CENTER_Y },
 								{ CV3_WIDTH ,CV3_LENGTH ,CV3_CENTER_X ,CV3_CENTER_Y } };
-	//{ OPP_WIDTH ,OPP_LENGTH ,OPP_CENTER_X ,OPP_CENTER_Y }
+	
 	int goal_pos[COORDS]; // position of the goal
 	float last_t;
 	bool wait;

@@ -70,6 +70,7 @@ void follow_path(CtrlStruct *cvs)
 
 	nb_opp = cvs->nb_opp;
 
+	//update the position of opponent(s)
 	if (nb_opp)
 	{
 		opp1_posx = cvs->opp_pos->x[0] * 1000;
@@ -85,12 +86,6 @@ void follow_path(CtrlStruct *cvs)
 	
 	F_att[X] = -K_ATT*(rob_posx - goal_posx);
 	F_att[Y] = -K_ATT*(rob_posy - goal_posy);
-
-	//limit F_att
-	//limitNorm(F_att, F_ATT_MAX, F_ATT_MIN);
-
-	//std::cout << "F_att" << F_att[X] << ",";
-	//std::cout << F_att[Y] << std::endl;
 	
 	//get closest obstacle distance and angle
 	int obstacle_dist = DIST_THRESHOLD;
@@ -101,11 +96,7 @@ void follow_path(CtrlStruct *cvs)
 	int cas_nb = 0;
 	int ob_cas_nb = 0;
 
-
-	//UPDATE OPPENENT POSITION
-	//cvs->path->map[22][OB_X] = cvs->opp_pos->x[0] * 1000;
-	//cvs->path->map[22][OB_Y] = cvs->opp_pos->y[0] * 1000;
-
+	//use a virtual wall to close the center obstacle (avoid local minima)
 	if ((goal_posx == 100 && goal_posy == 0) || (rob_posx>-100 && rob_posx<100 && rob_posx>-300 && rob_posy<300))
 	{
 		cvs->path->cage_open = 1;//cage open
@@ -117,6 +108,7 @@ void follow_path(CtrlStruct *cvs)
 
 	for (int i = 0; i < NB_RECT-cvs->path->cage_open; i++)
 	{
+		//8 positions around rectangles
 		if (rob_posx<cvs->path->map[i][OB_X]- cvs->path->map[i][OB_L]/2 && rob_posy>cvs->path->map[i][OB_Y]+ cvs->path->map[i][OB_H]/2)
 		{
 			d_computed = sqrt( pow(cvs->path->map[i][OB_X] - cvs->path->map[i][OB_L] / 2 - rob_posx,2) + pow(rob_posy-cvs->path->map[i][OB_Y] - cvs->path->map[i][OB_H] / 2,2) ) - ROBOT_SIZE;
@@ -203,44 +195,27 @@ void follow_path(CtrlStruct *cvs)
 	{
 		obst_pos[X] = rob_posx+round(obstacle_dist*cos(obstacle_theta));
 		obst_pos[Y] = rob_posy+round(obstacle_dist*sin(obstacle_theta));
-		//F_rep[I] = -K_REP*(1/obstacle_dist)*sin(obstacle_theta);
-		//F_rep[J] = -K_REP*(1/obstacle_dist)*cos(obstacle_theta)
+		
 		F_rep[X] = K_REP*(1.0 / obstacle_dist - 1.0 / DIST_THRESHOLD)*(rob_posx - obst_pos[X]) /pow(obstacle_dist,2);
 		F_rep[Y] = K_REP*(1.0 / obstacle_dist - 1.0 / DIST_THRESHOLD)*(rob_posy - obst_pos[Y]) / pow(obstacle_dist,2);
 
 	}
 
-
-	/*std::cout << "F_att: " << F_att[X] << ",";
-	std::cout << F_att[Y] << std::endl;
-	std::cout << "F_rep " << F_rep[X] << ",";
-	std::cout << F_rep[Y] << std::endl;
-	std::cout << "obst_dist: " << obstacle_dist << ",";
-	std::cout << "obst_cas_nb: " << ob_cas_nb << ",";
-	std::cout << "obst_theta: " << obstacle_theta << std::endl;*/
-
 	F_tot[X] = F_att[X] + F_rep[X];
 	F_tot[Y] = F_att[Y] + F_rep[Y];
 
-	// Opponents force computation
+	// Opponent(s) force computation
 	opp1_dist = norm_dist(rob_posx - opp1_posx, rob_posy - opp1_posy) - ROBOT_SIZE;
 	opp1_theta = atan2((opp1_posy - rob_posy), (opp1_posx - rob_posx));
 
 	opp2_dist = norm_dist(rob_posx - opp2_posx, rob_posy - opp2_posy) - ROBOT_SIZE;
 	opp2_theta = atan2((opp2_posy - rob_posy), (opp2_posx - rob_posx));
-	//std::cout << opp_dist << std::endl;
-	//std::cout << opp_theta << std::endl;
 
 	// first opponent force
 	if (opp1_dist < 3 * DIST_THRESHOLD && opp1_dist != 0)
 	{
 		F_opp1[X] = K_OPP*(1.0 / opp1_dist - 1.0 / (3 * DIST_THRESHOLD))*(rob_posx - (rob_posx + round(opp1_dist*cos(opp1_theta)))) / pow(opp1_dist, 2);
 		F_opp1[Y] = K_OPP*(1.0 / opp1_dist - 1.0 / (3 * DIST_THRESHOLD))*(rob_posy - (rob_posy + round(opp1_dist*sin(opp1_theta)))) / pow(opp1_dist, 2);
-
-		//std::cout << F_opp[X] << std::endl;
-		//std::cout << F_opp[Y] << std::endl;
-		//F_tot[X] = 0;
-		//F_tot[Y] = 0;
 	}
 	else
 	{
@@ -253,11 +228,6 @@ void follow_path(CtrlStruct *cvs)
 	{
 		F_opp2[X] = K_OPP*(1.0 / opp2_dist - 1.0 / (3 * DIST_THRESHOLD))*(rob_posx - (rob_posx + round(opp2_dist*cos(opp2_theta)))) / pow(opp2_dist, 2);
 		F_opp2[Y] = K_OPP*(1.0 / opp2_dist - 1.0 / (3 * DIST_THRESHOLD))*(rob_posy - (rob_posy + round(opp2_dist*sin(opp2_theta)))) / pow(opp2_dist, 2);
-
-		//std::cout << F_opp[X] << std::endl;
-		//std::cout << F_opp[Y] << std::endl;
-		//F_tot[X] = 0;
-		//F_tot[Y] = 0;
 	}
 	else
 	{

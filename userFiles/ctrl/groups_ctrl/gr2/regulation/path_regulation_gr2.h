@@ -19,9 +19,7 @@
 #define K_ATT 				0.02
 #define	K_REP				260000
 #define K_OPP				3000000
-//#define	F_ATT_MAX			40
-//#define	F_ATT_MIN			10
-//#define	F_REP_MAX			60
+
 #define ROT_SPEED 			1.8 //constante used for forcetocommand to specify the rotation speed 
 #define OB_H				0
 #define OB_L				1

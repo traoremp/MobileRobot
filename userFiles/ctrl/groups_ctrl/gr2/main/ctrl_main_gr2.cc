@@ -89,19 +89,10 @@ void controller_loop(CtrlStruct *cvs)
 	// tower control
 	outputs->tower_command = 15.0;
 
-	//set_plot(inputs->r_wheel_speed, "R_w_in[rad/s]");
-	//set_plot(inputs->l_wheel_speed, "L_w_in[rad/s]");
-
 	set_plot(cvs->rob_pos->x, "x_odo");
 	set_plot(cvs->rob_pos->y, "y_odo");
 	set_plot(cvs->rob_pos->theta, "t_odo");
 
-	//set_plot(cvs->opp_pos->x[0], "x_opp[m]");
-	//set_plot(cvs->opp_pos->y[0], "y_opp[m]");
-
-	/*set_plot(cvs->triang_pos->x, "x_tri[m]");
-	set_plot(cvs->triang_pos->y, "y_tri[m]");
-	set_plot(cvs->triang_pos->theta, "theta_tri[rad]");*/
 	switch (cvs->main_state)
 	{
 		// calibration
@@ -117,16 +108,6 @@ void controller_loop(CtrlStruct *cvs)
 			{
 				cvs->main_state = RUN_STATE;
 				cvs->strat->main_state = GAME_STATE_A;
-				
-				// triangulation
-				/*triangulation(cvs);
-				if (t < 16.0 )
-					t > 10.0 ? speed_regulation(cvs, 10, 10) : speed_regulation(cvs, 0.0, 0.0);
-				else if (t >= 16.0 && !(cvs->rob_pos->theta + 0.2 >= M_PI))
-					speed_regulation(cvs, -10, 10);
-				else
-					speed_regulation(cvs, 10, 10);*/
-
 			}
 			else
 				speed_regulation(cvs, 0.0, 0.0);
