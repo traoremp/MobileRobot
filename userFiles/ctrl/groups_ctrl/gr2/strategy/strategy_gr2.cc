@@ -51,7 +51,10 @@ void main_strategy(CtrlStruct *cvs)
 	{
 		case GAME_STATE_A:
 			//std::cout << "STATE: A" << std::endl;
-			getOutofStart(cvs);
+			//getOutofStart(cvs);
+			cvs->path->goal_pos[X] = 600;
+			cvs->path->goal_pos[Y] = 200;
+			follow_path(cvs);
 			break;
 
 		case GAME_STATE_B:

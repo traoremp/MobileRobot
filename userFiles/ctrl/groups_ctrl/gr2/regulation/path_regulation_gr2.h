@@ -31,7 +31,7 @@
 NAMESPACE_INIT(ctrlGr2);
 
 void follow_path(CtrlStruct *cvs);
-void ForceToCommand(double F[], CtrlStruct *cvs);
+void ForceToCommand(double F[], CtrlStruct *cvs, double turn);
 
 NAMESPACE_CLOSE();
 

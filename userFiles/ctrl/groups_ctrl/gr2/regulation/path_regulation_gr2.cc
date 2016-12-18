@@ -22,18 +22,38 @@ void follow_path(CtrlStruct *cvs)
 	double F_tot[COORDS];
 	int obst_pos[COORDS];
 
+	double turn = 0.0;
+
 	int rob_posx;
 	int rob_posy;
 	int goal_posx;
 	int goal_posy;
 	int opp_posx;
 	int opp_posy;
+	int team_base_x;
+	int team_base_y;
 
 	double obstacle_theta = 0;
 	double opp_theta = 0;
 	bool found = false; 
 	double alpha;
 	double alpha_rel;
+
+	switch (cvs->team_id)
+	{
+	case TEAM_A:
+		team_base_x = -500;
+		team_base_y = -800;
+		break;
+
+	case TEAM_B:
+		team_base_x = -500;
+		team_base_y = 800;
+		break;
+
+	default:
+		break;
+	}
 
 	cvs->outputs->flag_release = 0;
 
@@ -188,18 +208,13 @@ void follow_path(CtrlStruct *cvs)
 
 
 	//Goal reached
-	if (norm_dist(rob_posx - cvs->path->goal_pos[X], rob_posy - cvs->path->goal_pos[Y]) < 100 && cvs->inputs->target_detected && !cvs->path->wait && rob_posx>-500) 
-	{
-		cvs->path->wait = 1;
-		F_tot[X] = 0;
-		F_tot[Y] = 0;
-		
-	}
-	else if (cvs->path->wait)
+	if (cvs->path->wait)
 	{
 		F_tot[X] = 0;
 		F_tot[Y] = 0;
-		
+
+		turn = 10;
+
 		if (!cvs->inputs->target_detected)
 		{
 			cvs->inputs->nb_targets += 1;
@@ -207,7 +222,14 @@ void follow_path(CtrlStruct *cvs)
 			cvs->strat->main_state += 1;//next startegy state
 		}
 	}
-	else if (norm_dist(rob_posx - cvs->path->goal_pos[X], rob_posy - cvs->path->goal_pos[Y]) < 50 && !cvs->path->wait)
+	else if (norm_dist(rob_posx - cvs->path->goal_pos[X], rob_posy - cvs->path->goal_pos[Y]) < 100 && cvs->inputs->target_detected && (rob_posx>team_base_x || rob_posy>team_base_y))
+	{
+		cvs->path->wait = 1;
+		F_tot[X] = 0;
+		F_tot[Y] = 0;
+		
+	}
+	else if (norm_dist(rob_posx - cvs->path->goal_pos[X], rob_posy - cvs->path->goal_pos[Y]) < 50)
 	{
 		cvs->strat->main_state += 1;//next startegy state
 	}
@@ -218,12 +240,12 @@ void follow_path(CtrlStruct *cvs)
 	//std::cout << opp_dist << std::endl;
 	//std::cout << opp_theta << std::endl;
 	
-	if (opp_dist < 3*DIST_THRESHOLD)
+	if (opp_dist < 3*DIST_THRESHOLD && opp_dist!=0)
 	{
 		F_opp[X] = K_OPP*(1.0 / opp_dist - 1.0 / (3*DIST_THRESHOLD))*(rob_posx - (rob_posx + round(opp_dist*cos(opp_theta)))) / pow(opp_dist, 2);
 		F_opp[Y] = K_OPP*(1.0 / opp_dist - 1.0 / (3*DIST_THRESHOLD))*(rob_posy - (rob_posy + round(opp_dist*sin(opp_theta)))) / pow(opp_dist, 2);
-		std::cout << F_opp[X] << std::endl;
-		std::cout << F_opp[Y] << std::endl;
+		//std::cout << F_opp[X] << std::endl;
+		//std::cout << F_opp[Y] << std::endl;
 		//F_tot[X] = 0;
 		//F_tot[Y] = 0;
 	}
@@ -240,13 +262,13 @@ void follow_path(CtrlStruct *cvs)
 	
 	// --- Force to motors command transformation (sart) --- //
 
-	ForceToCommand(F_tot, cvs);
+	ForceToCommand(F_tot, cvs, turn);
 	
 	// --- Force to motors command transformation (end) --- //
 }
 
 //set the command to motors by transforming the vector F_tot
-void ForceToCommand(double F[], CtrlStruct *cvs)
+void ForceToCommand(double F[], CtrlStruct *cvs, double turn)
 {
 	double wl =0;
 	double wr =0;
@@ -270,11 +292,16 @@ void ForceToCommand(double F[], CtrlStruct *cvs)
         wl = 20 - 2*ROT_SPEED*alpha/M_PI*20;
         wr = 20 + 2*ROT_SPEED*alpha/M_PI*20;
     }
-    else
+    else if (turn)
    	{
-   		wl = 0;
-   		wr = 0;
+   		wl = turn;
+   		wr = -turn;
    	}
+	else
+	{
+		wl = 0.0;
+		wr = 0.0;
+	}
 
    	speed_regulation(cvs, wr, wl);
 
