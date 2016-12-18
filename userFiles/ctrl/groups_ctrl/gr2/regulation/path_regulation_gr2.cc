@@ -18,7 +18,8 @@ void follow_path(CtrlStruct *cvs)
 	//attractive and repulsive forces
 	double F_att[COORDS];
 	double F_rep[COORDS];
-	double F_opp[COORDS];
+	double F_opp1[COORDS];
+	double F_opp2[COORDS];
 	double F_tot[COORDS];
 	int obst_pos[COORDS];
 
@@ -28,13 +29,17 @@ void follow_path(CtrlStruct *cvs)
 	int rob_posy;
 	int goal_posx;
 	int goal_posy;
-	int opp_posx;
-	int opp_posy;
+	int opp1_posx = 0;
+	int opp1_posy = -2000;
+	int opp2_posx = 0;
+	int opp2_posy = -2000;
+	int nb_opp;
 	int team_base_x;
 	int team_base_y;
 
 	double obstacle_theta = 0;
-	double opp_theta = 0;
+	double opp1_theta = 0;
+	double opp2_theta = 0;
 	bool found = false; 
 	double alpha;
 	double alpha_rel;
@@ -63,8 +68,18 @@ void follow_path(CtrlStruct *cvs)
 	goal_posx = cvs->path->goal_pos[X];
 	goal_posy = cvs->path->goal_pos[Y];
 
-	opp_posx = cvs->opp_pos->x[0] * 1000;
-	opp_posy = cvs->opp_pos->y[0] * 1000;
+	nb_opp = cvs->nb_opp;
+
+	if (nb_opp)
+	{
+		opp1_posx = cvs->opp_pos->x[0] * 1000;
+		opp1_posy = cvs->opp_pos->y[0] * 1000;
+	}
+	if (nb_opp == 2)
+	{
+		opp2_posx = cvs->opp_pos->x[1] * 1000;
+		opp2_posy = cvs->opp_pos->y[1] * 1000;
+	}
 
 	// --- Potential Field algorithm (start) --- //
 	
@@ -79,7 +94,8 @@ void follow_path(CtrlStruct *cvs)
 	
 	//get closest obstacle distance and angle
 	int obstacle_dist = DIST_THRESHOLD;
-	int opp_dist;
+	int opp1_dist;
+	int opp2_dist;
 	int d_computed;
 	int ob_number = 0;
 	int cas_nb = 0;
@@ -234,16 +250,21 @@ void follow_path(CtrlStruct *cvs)
 		cvs->strat->main_state += 1;//next startegy state
 	}
 
-	// Opponent force computation
-	opp_dist = norm_dist(rob_posx - opp_posx, rob_posy - opp_posy) - ROBOT_SIZE;
-	opp_theta = atan2((opp_posy-rob_posy) , (opp_posx - rob_posx));
+	// Opponents force computation
+	opp1_dist = norm_dist(rob_posx - opp1_posx, rob_posy - opp1_posy) - ROBOT_SIZE;
+	opp1_theta = atan2((opp1_posy-rob_posy) , (opp1_posx - rob_posx));
+
+	opp2_dist = norm_dist(rob_posx - opp2_posx, rob_posy - opp2_posy) - ROBOT_SIZE;
+	opp2_theta = atan2((opp2_posy - rob_posy), (opp2_posx - rob_posx));
 	//std::cout << opp_dist << std::endl;
 	//std::cout << opp_theta << std::endl;
 	
-	if (opp_dist < 3*DIST_THRESHOLD && opp_dist!=0)
+	// first opponent force
+	if (opp1_dist < 3*DIST_THRESHOLD && opp1_dist!=0)
 	{
-		F_opp[X] = K_OPP*(1.0 / opp_dist - 1.0 / (3*DIST_THRESHOLD))*(rob_posx - (rob_posx + round(opp_dist*cos(opp_theta)))) / pow(opp_dist, 2);
-		F_opp[Y] = K_OPP*(1.0 / opp_dist - 1.0 / (3*DIST_THRESHOLD))*(rob_posy - (rob_posy + round(opp_dist*sin(opp_theta)))) / pow(opp_dist, 2);
+		F_opp1[X] = K_OPP*(1.0 / opp1_dist - 1.0 / (3*DIST_THRESHOLD))*(rob_posx - (rob_posx + round(opp1_dist*cos(opp1_theta)))) / pow(opp1_dist, 2);
+		F_opp1[Y] = K_OPP*(1.0 / opp1_dist - 1.0 / (3*DIST_THRESHOLD))*(rob_posy - (rob_posy + round(opp1_dist*sin(opp1_theta)))) / pow(opp1_dist, 2);
+		
 		//std::cout << F_opp[X] << std::endl;
 		//std::cout << F_opp[Y] << std::endl;
 		//F_tot[X] = 0;
@@ -251,12 +272,29 @@ void follow_path(CtrlStruct *cvs)
 	}
 	else
 	{
-		F_opp[X] = 0;
-		F_opp[Y] = 0;
+		F_opp1[X] = 0;
+		F_opp1[Y] = 0;
 	}
 
-	F_tot[X] = F_tot[X] + F_opp[X];
-	F_tot[Y] = F_tot[Y] + F_opp[Y];
+	// second opponent force
+	if (opp2_dist < 3 * DIST_THRESHOLD && opp2_dist != 0)
+	{
+		F_opp2[X] = K_OPP*(1.0 / opp2_dist - 1.0 / (3 * DIST_THRESHOLD))*(rob_posx - (rob_posx + round(opp2_dist*cos(opp2_theta)))) / pow(opp2_dist, 2);
+		F_opp2[Y] = K_OPP*(1.0 / opp2_dist - 1.0 / (3 * DIST_THRESHOLD))*(rob_posy - (rob_posy + round(opp2_dist*sin(opp2_theta)))) / pow(opp2_dist, 2);
+
+		//std::cout << F_opp[X] << std::endl;
+		//std::cout << F_opp[Y] << std::endl;
+		//F_tot[X] = 0;
+		//F_tot[Y] = 0;
+	}
+	else
+	{
+		F_opp2[X] = 0;
+		F_opp2[Y] = 0;
+	}
+
+	F_tot[X] = F_tot[X] + F_opp1[X] + F_opp2[X];
+	F_tot[Y] = F_tot[Y] + F_opp1[Y] + F_opp2[Y];
 
 	// --- Potential Field algorithm (end) --- //
 	
