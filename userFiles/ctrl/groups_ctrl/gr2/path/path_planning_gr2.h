@@ -187,6 +187,9 @@ struct PathPlanning
 	float last_t;
 	bool wait;
 	int cage_open = 0; //initialise closed
+
+	int BASE_STATE = 0;
+
 };
 
 PathPlanning* init_path_planning();

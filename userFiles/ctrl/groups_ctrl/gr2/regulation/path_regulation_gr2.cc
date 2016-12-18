@@ -213,7 +213,7 @@ void follow_path(CtrlStruct *cvs)
 		F_tot[X] = 0;
 		F_tot[Y] = 0;
 
-		turn = 10;
+		turn = 0;
 
 		if (!cvs->inputs->target_detected)
 		{
@@ -222,7 +222,7 @@ void follow_path(CtrlStruct *cvs)
 			cvs->strat->main_state += 1;//next startegy state
 		}
 	}
-	else if (norm_dist(rob_posx - cvs->path->goal_pos[X], rob_posy - cvs->path->goal_pos[Y]) < 100 && cvs->inputs->target_detected && (rob_posx>team_base_x || rob_posy>team_base_y))
+	else if (norm_dist(rob_posx - cvs->path->goal_pos[X], rob_posy - cvs->path->goal_pos[Y]) < 200 && cvs->inputs->target_detected && (rob_posx>team_base_x || rob_posy>team_base_y))
 	{
 		cvs->path->wait = 1;
 		F_tot[X] = 0;

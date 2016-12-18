@@ -62,6 +62,7 @@ void main_strategy(CtrlStruct *cvs)
 			cvs->path->goal_pos[X] = 100;
 			cvs->path->goal_pos[Y] = 0;
 			follow_path(cvs);
+			//goToBase(cvs);
 			break;
 			
 		case GAME_STATE_C:
@@ -70,6 +71,7 @@ void main_strategy(CtrlStruct *cvs)
 			cvs->path->goal_pos[X] = 400;
 			cvs->path->goal_pos[Y] = 100;
 			follow_path(cvs);
+			//getOutofBase(cvs);
 			break;
 
 		case GAME_STATE_D:
@@ -188,7 +190,7 @@ void goToBase(CtrlStruct *cvs)
 			}
 			else
 			{
-				cvs->path->goal_pos[X] = -700;
+				cvs->path->goal_pos[X] = -750;
 				cvs->path->goal_pos[Y] = -1200;
 			}
 			break;
@@ -200,7 +202,7 @@ void goToBase(CtrlStruct *cvs)
 			}
 			else
 			{
-				cvs->path->goal_pos[X] = -700;
+				cvs->path->goal_pos[X] = -750;
 				cvs->path->goal_pos[Y] = 1200;
 			}
 			break;
@@ -213,7 +215,89 @@ void getOutofBase(CtrlStruct *cvs)
 {
 	cvs->outputs->flag_release = 1; //lacher les cibles
 
-	if (cvs->rob_pos->theta <0 && cvs->rob_pos->theta > -M_PI + 0.05)
+	double t = cvs->inputs->t;
+
+	switch (cvs->path->BASE_STATE)
+	{
+	case BASE_STATE_1:
+		speed_regulation(cvs, -15.0, 15.0);
+		if (cvs->rob_pos->theta <M_PI / 2 - 0.005 && cvs->rob_pos->theta > M_PI / 2 - 0.02)
+		{
+			cvs->path->BASE_STATE += 1;
+		}
+		break;
+	case BASE_STATE_2:
+		speed_regulation(cvs, -30.0, -30.0);
+		if (cvs->inputs->u_switch[0] && cvs->inputs->u_switch[1])
+		{
+			cvs->path->last_t = t;
+			cvs->path->BASE_STATE += 1;
+		}
+		break;
+	case BASE_STATE_3:
+		speed_regulation(cvs, -30.0, -30.0);
+		if (t - cvs->path->last_t > 0.2)
+		{
+			if (cvs->team_id == TEAM_A)
+			{
+				cvs->rob_pos->y = -1.5 + 0.06;
+				cvs->rob_pos->theta = M_PI / 2;
+			}
+			else if (cvs->team_id == TEAM_B)
+			{
+				cvs->rob_pos->y = 0.85 + 0.06;
+				cvs->rob_pos->theta = M_PI / 2;
+			}
+			cvs->path->BASE_STATE += 1;
+		}
+		break;
+	case BASE_STATE_4:
+		speed_regulation(cvs, 30.0, 30.0);
+		if ((cvs->rob_pos->y > -1.3 && cvs->team_id == TEAM_A) || (cvs->rob_pos->y > 1.2 && cvs->team_id == TEAM_B))
+		{
+			cvs->path->BASE_STATE += 1;
+		}
+		break;
+	case BASE_STATE_5:
+		speed_regulation(cvs, -15.0, 15.0);
+		if (cvs->rob_pos->theta < 0 && cvs->rob_pos->theta > - 0.02)
+		{
+			cvs->path->BASE_STATE += 1;
+		}
+		break;
+	case BASE_STATE_6:
+		speed_regulation(cvs, -30.0, -30.0);
+		if (cvs->inputs->u_switch[0] && cvs->inputs->u_switch[1])
+		{
+			cvs->path->last_t = t;
+			cvs->path->BASE_STATE += 1;
+		}
+		break;
+	case BASE_STATE_7:
+		speed_regulation(cvs, -30.0, -30.0);
+		if (t - cvs->path->last_t > 0.2)
+		{
+			cvs->rob_pos->x = -1.0 + 0.06;
+			cvs->rob_pos->theta = 0;
+
+			cvs->path->BASE_STATE += 1;
+		}
+		break;
+	case BASE_STATE_8:
+		speed_regulation(cvs, 30.0, 30.0);
+		if (cvs->rob_pos->x > -0.4)
+		{
+			cvs->path->BASE_STATE = 0;
+			cvs->outputs->flag_release = 0;
+			cvs->strat->main_state += 1;//next startegy state
+		}
+		break;
+	default:
+		break;
+	}
+
+	
+	/*if (cvs->rob_pos->theta <0 && cvs->rob_pos->theta > -M_PI + 0.05)
 	{
 		speed_regulation(cvs, -30.0, 30.0);
 	}
@@ -229,7 +313,7 @@ void getOutofBase(CtrlStruct *cvs)
 	{
 		cvs->outputs->flag_release = 0;
 		cvs->strat->main_state += 1;//next startegy state
-	}
+	}*/
 }
 
 void getOutofStart(CtrlStruct *cvs)
